@@ -1,0 +1,14 @@
+{
+  "name": "ink-motion",
+  "version": "0.1.0",
+  "description": "Hand-drawn SVG line art that draws itself: constant pen speed, spring landing, scroll scrub.",
+  "type": "module",
+  "main": "src/ink-motion.js",
+  "exports": "./src/ink-motion.js",
+  "files": ["src"],
+  "scripts": {
+    "demo": "python3 -m http.server 8901"
+  },
+  "keywords": ["svg", "animation", "hand-drawn", "scroll", "stroke-dashoffset"],
+  "license": "MIT"
+}

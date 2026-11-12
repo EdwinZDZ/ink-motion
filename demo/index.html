@@ -1,0 +1,925 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ink-motion — hand-drawn SVG that draws itself</title>
+    <link rel="stylesheet" href="./demo.css" />
+  </head>
+  <body>
+    <header class="top">
+      <p class="eyebrow">ink-motion</p>
+      <h1>Hand-drawn SVG that draws itself.</h1>
+      <p class="lede">
+        Constant pen speed, spring landing, scroll scrub. One small module, no
+        dependencies, no build step.
+      </p>
+    </header>
+
+    <section class="stage" id="stage-structure">
+      <div class="stage__head">
+        <h2>01 — Draw once</h2>
+        <p>
+          Enters the viewport, draws every stroke at ~620 units per second, in
+          DOM order.
+        </p>
+      </div>
+      <svg
+        class="ink ink-structure"
+        viewBox="0 0 420 300"
+        data-ink
+        role="img"
+        aria-label="One line of dialogue branching into a script, a storyboard and an image"
+      >
+        <path
+          data-ink-draw
+          data-ink-delay="0"
+          pathLength="1"
+          d="M40 44 C120 40 220 42 300 44 C310 44 316 50 316 60 L316 100 C316 110 310 116 300 116 L132 114 L110 136 L118 112 L56 112 C46 112 40 106 40 96 L40 60 C40 50 40 44 40 44"
+        />
+        <path
+          class="soft"
+          data-ink-draw
+          data-ink-delay="240"
+          pathLength="1"
+          d="M62 66 C104 63 148 65 186 64"
+        />
+        <path
+          class="soft"
+          data-ink-draw
+          data-ink-delay="300"
+          pathLength="1"
+          d="M62 84 C96 82 132 84 166 83"
+        />
+        <path
+          data-ink-draw
+          data-ink-delay="420"
+          pathLength="1"
+          d="M178 118 C150 148 120 168 100 186"
+        />
+        <path
+          data-ink-draw
+          data-ink-delay="470"
+          pathLength="1"
+          d="M178 118 L216 186"
+        />
+        <path
+          data-ink-draw
+          data-ink-delay="520"
+          pathLength="1"
+          d="M178 118 C212 148 250 168 276 186"
+        />
+        <path
+          data-ink-draw
+          data-ink-delay="620"
+          pathLength="1"
+          d="M54 190 C80 187 120 189 146 190 C150 190 152 193 152 197 L151 266 C151 270 148 272 144 272 L57 271 C53 271 50 268 50 264 L52 195 C52 191 52 190 54 190"
+        />
+        <path
+          class="soft"
+          data-ink-draw
+          data-ink-delay="680"
+          pathLength="1"
+          d="M64 206 C84 204 108 206 134 204"
+        />
+        <path
+          class="soft"
+          data-ink-draw
+          data-ink-delay="710"
+          pathLength="1"
+          d="M64 224 C82 222 100 224 118 223"
+        />
+        <path
+          class="soft"
+          data-ink-draw
+          data-ink-delay="740"
+          pathLength="1"
+          d="M64 242 C80 240 94 242 108 241"
+        />
+        <path
+          data-ink-draw
+          data-ink-delay="620"
+          pathLength="1"
+          d="M172 190 C198 187 238 189 260 190 C264 190 266 193 266 197 L265 266 C265 270 262 272 258 272 L175 271 C171 271 168 268 168 264 L170 195 C170 191 170 190 172 190"
+        />
+        <path
+          class="soft"
+          data-ink-draw
+          data-ink-delay="760"
+          pathLength="1"
+          d="M216 196 L216 266"
+        />
+        <path
+          class="soft"
+          data-ink-draw
+          data-ink-delay="790"
+          pathLength="1"
+          d="M172 231 L262 230"
+        />
+        <path
+          data-ink-draw
+          data-ink-delay="620"
+          pathLength="1"
+          d="M290 190 C316 187 356 189 378 190 C382 190 384 193 384 197 L383 266 C383 270 380 272 376 272 L293 271 C289 271 286 268 286 264 L288 195 C288 191 288 190 290 190"
+        />
+        <path
+          data-ink-draw
+          data-ink-delay="800"
+          pathLength="1"
+          d="M298 262 C310 240 320 226 328 224 C338 222 350 242 362 260"
+        />
+        <circle
+          class="soft"
+          data-ink-draw
+          data-ink-delay="840"
+          pathLength="1"
+          cx="352"
+          cy="212"
+          r="9"
+        />
+        <circle
+          class="clay"
+          data-ink-drop
+          data-ink-delay="980"
+          cx="128"
+          cy="108"
+          r="3.2"
+        />
+        <circle
+          class="clay"
+          data-ink-drop
+          data-ink-delay="1040"
+          cx="216"
+          cy="252"
+          r="2.6"
+        />
+      </svg>
+    </section>
+
+    <section class="stage" id="stage-scrub">
+      <div class="stage__head">
+        <h2>02 — Scrub with scroll</h2>
+        <p>
+          Every stroke is tied to progress. Scroll down and it draws; scroll up
+          and it un-draws.
+        </p>
+      </div>
+      <div class="scene-wrap">
+        <div class="scene-bar">
+          <span>progress</span>
+          <span class="scene-bar__track"
+            ><span class="scene-bar__fill" id="scrubFill"></span
+          ></span>
+          <span id="scrubPct">0%</span>
+        </div>
+        <svg class="ink ink-scene" viewBox="0 0 560 700" data-ink-scrub>
+          <!-- 01 · 灯轨、灯罩与光锥 -->
+          <path
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M40 26 C160 22 400 24 520 27"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M120 27 L120 44"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M280 25 L280 42"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M430 26 L430 43"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M110 44 L130 44 L126 57 L114 57 Z"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M270 42 L290 42 L286 55 L274 55 Z"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M420 43 L440 43 L436 56 L424 56 Z"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M116 58 C108 140 100 230 94 320"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M124 58 C134 142 144 232 152 320"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M280 56 C274 148 270 240 268 330"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M284 56 C290 150 296 242 298 330"
+          />
+          <!-- 02 · 分镜墙外框与四列两行 -->
+          <path
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M40 70 C170 66 390 68 518 71 C521 71 523 74 523 78 L522 386 C522 389 519 391 515 391 L46 389 C42 389 39 386 39 382 L40 76 C40 72 40 70 40 70"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M160 70 C158 180 162 300 160 390"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M280 69 C278 180 282 300 280 390"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M400 70 C398 180 402 300 400 390"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M40 230 C170 227 380 232 522 229"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M40 401 C180 397 380 403 522 399"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M70 78 L92 74"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M470 78 L492 74"
+          />
+          <!-- 03 · 八格分镜：远景 / 人物 / 日与云 / 楼 / 门 / 树 / 斜构图 / 窗 -->
+          <path
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M52 218 C74 176 96 152 110 150 C128 148 144 178 158 216"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M52 219 C88 215 124 217 158 216"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M96 172 C104 164 114 160 122 162"
+          />
+          <circle
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            cx="220"
+            cy="160"
+            r="16"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M196 218 C202 190 210 176 220 174 C230 176 238 190 244 218"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M192 204 C204 198 236 198 248 204"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M292 218 C322 214 366 216 388 215"
+          />
+          <circle
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            cx="340"
+            cy="160"
+            r="20"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M300 132 C310 124 322 120 332 120"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M350 128 C362 122 374 122 384 127"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M412 218 L412 118 C412 110 418 104 426 104 L480 104 L480 218"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M480 150 L512 150 L512 218"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M428 128 L448 128 L448 146 L428 146 Z"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M60 372 L60 286 C60 274 70 266 82 266 L124 268 C134 268 140 276 140 286 L140 372"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M60 348 C80 344 120 344 140 348"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M220 372 C221 330 219 284 220 258"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M220 306 C202 288 190 280 180 276"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M220 282 C234 266 246 260 256 257"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M292 372 C316 330 348 296 392 266"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M292 334 C318 318 344 308 372 302"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M412 372 L412 272 C412 264 418 258 426 258 L498 258 L498 372"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M455 258 L455 372"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M412 315 L498 315"
+          />
+          <!-- 04 · 左侧窗：夜色与百叶 -->
+          <path
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            d="M26 620 L26 452 C26 444 32 438 40 438 L104 438 C112 438 118 444 118 452 L118 620"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            d="M72 438 L72 620"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            d="M26 500 L118 500"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            d="M26 560 L118 560"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            d="M30 456 C58 452 90 454 114 456"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            d="M32 468 L112 468"
+          />
+          <circle
+            class="soft"
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            cx="102"
+            cy="530"
+            r="3.2"
+          />
+          <!-- 05 · 站在墙前的人：背影，右手抬起来指着一格 -->
+          <path
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M270 452 C270 424 288 406 312 407 C336 408 354 426 354 452 C354 476 342 492 326 496 C323 498 301 498 298 496 C282 492 270 476 270 452"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M258 528 C268 494 286 476 312 475 C338 476 358 494 368 528"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M258 528 C256 570 258 616 266 632 C270 645 272 654 272 660"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M368 528 C370 570 368 616 360 632 C356 645 354 654 354 660"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M312 610 C313 630 312 648 312 660"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M366 536 C392 508 414 486 432 466"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M432 466 C440 458 448 461 450 468"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M432 466 L424 458"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M266 536 C256 578 258 620 262 650"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M286 560 C292 590 290 620 288 650"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M344 560 C338 590 340 620 342 650"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M294 486 C304 494 320 494 330 486"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M278 448 C282 424 296 410 312 409 C330 408 344 420 348 442"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M262 540 C286 534 338 534 362 540"
+          />
+          <!-- 06 · 摄影机、电缆与地面 -->
+          <path
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            d="M470 570 L428 664"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            d="M470 570 L512 664"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            d="M470 570 L472 664"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            d="M440 620 C454 612 490 612 504 620"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            d="M410 512 C410 500 418 492 430 492 L494 492 C506 492 514 500 514 512 L514 550 C514 560 506 566 494 566 L430 566 C418 566 410 560 410 550 Z"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            d="M514 520 C528 518 538 526 538 534 C538 542 528 550 514 548"
+          />
+          <circle
+            class="soft"
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            cx="532"
+            cy="534"
+            r="10"
+          />
+          <circle
+            class="soft"
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            cx="532"
+            cy="534"
+            r="5"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            d="M462 492 L462 566"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            d="M420 492 L420 470 L448 470 L448 492"
+          />
+          <circle
+            class="soft"
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            cx="440"
+            cy="464"
+            r="17"
+          />
+          <circle
+            class="soft"
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            cx="478"
+            cy="464"
+            r="13"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            d="M514 560 C534 584 512 604 530 626 C544 642 524 654 536 666"
+          />
+          <path
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            d="M20 664 C180 660 420 666 544 662"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            d="M92 664 L108 700"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            d="M226 665 L232 700"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            d="M366 665 L370 700"
+          />
+          <path
+            class="soft"
+            data-ink-draw
+            data-ink-stage="4"
+            pathLength="1"
+            d="M488 664 L500 700"
+          />
+          <!-- 07 · 陶土点缀与光尘 -->
+          <circle
+            class="clay"
+            data-ink-drop
+            data-start="0.5"
+            cx="340"
+            cy="160"
+            r="3.6"
+          />
+          <circle
+            class="clay"
+            data-ink-drop
+            data-start="0.74"
+            cx="504"
+            cy="502"
+            r="3"
+          />
+          <circle
+            class="clay"
+            data-ink-drop
+            data-start="0.36"
+            cx="48"
+            cy="470"
+            r="2.2"
+          />
+          <circle
+            class="dust"
+            data-ink-drop
+            data-start="0.42"
+            cx="150"
+            cy="300"
+            r="1.8"
+          />
+          <circle
+            class="dust"
+            data-ink-drop
+            data-start="0.56"
+            cx="236"
+            cy="120"
+            r="1.5"
+          />
+          <circle
+            class="dust"
+            data-ink-drop
+            data-start="0.64"
+            cx="392"
+            cy="232"
+            r="1.6"
+          />
+          <circle
+            class="dust"
+            data-ink-drop
+            data-start="0.8"
+            cx="88"
+            cy="360"
+            r="1.4"
+          />
+          <circle
+            class="dust"
+            data-ink-drop
+            data-start="0.88"
+            cx="300"
+            cy="200"
+            r="1.9"
+          />
+        </svg>
+      </div>
+    </section>
+
+    <section class="stage" id="stage-glyph">
+      <div class="stage__head">
+        <h2>03 — Spring landing</h2>
+        <p>
+          Dots and cards land with a damped spring (stiffness 180, damping 22)
+          instead of a linear fade.
+        </p>
+      </div>
+      <div class="glyph-row">
+        <svg
+          class="ink ink-glyph"
+          viewBox="0 0 44 44"
+          data-ink
+          aria-hidden="true"
+        >
+          <path
+            data-ink-draw
+            data-ink-delay="0"
+            pathLength="1"
+            d="M7 13 C18 11 30 12 37 13 C39 13 40 15 40 17 L40 34 C40 36 38 37 36 37 L9 36 C7 36 6 35 6 33 L6 16 C6 14 6 13 7 13 Z"
+          />
+          <path
+            data-ink-draw
+            data-ink-delay="140"
+            pathLength="1"
+            d="M23 13 C23 20 23 28 23 36"
+          />
+          <path
+            data-ink-draw
+            data-ink-delay="220"
+            pathLength="1"
+            d="M7 24 C14 23 30 24 39 23"
+          />
+          <g class="chapter-glyph__detail" data-ink-fade data-ink-delay="360">
+            <path d="M10 17 C13 16 17 17 20 16" />
+            <path d="M10 20 C12 19 15 20 18 19" />
+            <path d="M10 29 C14 28 18 29 20 28" />
+            <path d="M27 16 C30 15 34 16 36 16 L36 20 C33 20 30 19 27 20 Z" />
+            <path d="M27 33 C29 30 31 28 33 30 C35 31 36 32 37 33" />
+          </g>
+          <path
+            class="chapter-glyph__lead"
+            data-ink-draw
+            data-ink-delay="300"
+            pathLength="1"
+            d="M22 3 C22 6 22 9 22 12"
+          />
+          <path
+            class="clay"
+            data-ink-fade
+            data-ink-delay="520"
+            d="M20 2 C21 1 23 1 24 2 C25 3 25 5 24 6 C23 7 21 7 20 6 C19 5 19 3 20 2 Z"
+          />
+        </svg>
+        <svg
+          class="ink ink-glyph"
+          viewBox="0 0 44 44"
+          data-ink
+          aria-hidden="true"
+        >
+          <path
+            data-ink-draw
+            data-ink-delay="0"
+            pathLength="1"
+            d="M7 13 C18 11 30 12 37 13 C39 13 40 15 40 17 L40 34 C40 36 38 37 36 37 L9 36 C7 36 6 35 6 33 L6 16 C6 14 6 13 7 13 Z"
+          />
+          <path
+            data-ink-draw
+            data-ink-delay="140"
+            pathLength="1"
+            d="M23 13 C23 20 23 28 23 36"
+          />
+          <path
+            data-ink-draw
+            data-ink-delay="220"
+            pathLength="1"
+            d="M7 24 C14 23 30 24 39 23"
+          />
+          <g class="chapter-glyph__detail" data-ink-fade data-ink-delay="360">
+            <path d="M10 17 C13 16 17 17 20 16" />
+            <path d="M10 20 C12 19 15 20 18 19" />
+            <path d="M10 29 C14 28 18 29 20 28" />
+            <path d="M27 16 C30 15 34 16 36 16 L36 20 C33 20 30 19 27 20 Z" />
+            <path d="M27 33 C29 30 31 28 33 30 C35 31 36 32 37 33" />
+          </g>
+          <path
+            class="chapter-glyph__lead"
+            data-ink-draw
+            data-ink-delay="300"
+            pathLength="1"
+            d="M22 3 C22 6 22 9 22 12"
+          />
+          <path
+            class="clay"
+            data-ink-fade
+            data-ink-delay="520"
+            d="M20 2 C21 1 23 1 24 2 C25 3 25 5 24 6 C23 7 21 7 20 6 C19 5 19 3 20 2 Z"
+          />
+        </svg>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <span>MIT · zero dependencies</span>
+      <span>demo/index.html</span>
+    </footer>
+
+    <script type="module">
+      import { playInk, scrubInk } from "../src/ink-motion.js";
+
+      playInk(document.querySelector(".ink-structure"));
+      document
+        .querySelectorAll(".ink-glyph")
+        .forEach((el) => playInk(el, { stagger: 60 }));
+
+      const fill = document.getElementById("scrubFill");
+      const pct = document.getElementById("scrubPct");
+      const scrub = scrubInk(document.querySelector(".ink-scene"), {
+        section: document.getElementById("stage-scrub"),
+        onUpdate: (p) => {
+          fill.style.width = (p * 100).toFixed(1) + "%";
+          pct.textContent = Math.round(p * 100) + "%";
+        },
+      });
+      scrub.bind();
+    </script>
+  </body>
+</html>

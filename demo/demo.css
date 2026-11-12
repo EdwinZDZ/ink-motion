@@ -1,0 +1,179 @@
+:root {
+  --paper: #fffdf7;
+  --ink: #1c1915;
+  --dim: #6f6a61;
+  --clay: #c87f5f;
+  --line: #e7e2d6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: ui-sans-serif, -apple-system, "Segoe UI", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.top {
+  min-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 8vw;
+  border-bottom: 1px solid var(--line);
+}
+
+.eyebrow {
+  margin: 0 0 20px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--clay);
+}
+
+.top h1 {
+  margin: 0;
+  max-width: 18ch;
+  font-size: clamp(40px, 5.4vw, 72px);
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+
+.top .lede {
+  margin: 24px 0 0;
+  max-width: 46ch;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--dim);
+}
+
+.stage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8vh 8vw;
+  border-bottom: 1px solid var(--line);
+}
+
+.stage__head h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.stage__head p {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--dim);
+}
+
+.ink {
+  display: block;
+  overflow: visible;
+}
+
+.ink path,
+.ink circle {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.05;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ink .soft {
+  stroke-width: 1;
+  opacity: 0.55;
+}
+
+.ink .clay {
+  stroke: var(--clay);
+  stroke-width: 0;
+  fill: var(--clay);
+}
+
+.ink-structure {
+  width: min(560px, 82%);
+  margin: 7vh auto 0;
+}
+
+.scene-wrap {
+  position: relative;
+  width: min(400px, 58%);
+  margin: 4vh auto 0;
+}
+
+.ink-scene {
+  width: 100%;
+  height: auto;
+}
+
+.scene-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  font-size: 12px;
+  color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.scene-bar__track {
+  position: relative;
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.scene-bar__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: var(--clay);
+}
+
+.glyph-row {
+  display: flex;
+  align-items: center;
+  gap: 56px;
+  margin-top: 8vh;
+}
+
+.ink-glyph {
+  width: 128px;
+  height: 128px;
+}
+
+.ink-glyph--small {
+  width: 56px;
+  height: 56px;
+}
+
+.foot {
+  padding: 48px 8vw 64px;
+  font-size: 12px;
+  color: var(--dim);
+  display: flex;
+  justify-content: space-between;
+}
+
+@media (max-width: 720px) {
+  .top h1 {
+    font-size: 40px;
+  }
+  .ink-structure,
+  .scene-wrap {
+    width: 100%;
+  }
+}
