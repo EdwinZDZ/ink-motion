@@ -3,923 +3,874 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>ink-motion — hand-drawn SVG that draws itself</title>
+    <title>ink-motion — a timing engine for drawn SVG</title>
+    <meta
+      name="description"
+      content="Constant pen speed, damped spring landing and scroll scrub for hand-drawn SVG. One ES module, zero dependencies."
+    />
     <link rel="stylesheet" href="./demo.css" />
   </head>
   <body>
-    <header class="top">
-      <p class="eyebrow">ink-motion</p>
-      <h1>Hand-drawn SVG that draws itself.</h1>
-      <p class="lede">
-        Constant pen speed, spring landing, scroll scrub. One small module, no
-        dependencies, no build step.
-      </p>
+    <!-- Shared ink filter. Kept outside the template so cloned drawings do not duplicate IDs. -->
+    <svg width="0" height="0" aria-hidden="true" style="position: absolute">
+      <defs>
+        <filter id="inkWobble" x="-4%" y="-4%" width="108%" height="108%">
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.028"
+            numOctaves="2"
+            seed="7"
+            result="noise"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="noise"
+            scale="1.8"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
+        </filter>
+      </defs>
+    </svg>
+
+    <header class="masthead">
+      <div>
+        <span class="masthead__brand">ink-motion</span>
+        <span class="masthead__tag">SVG 描线时序引擎 · 单文件 ES module</span>
+      </div>
+      <nav class="masthead__links">
+        <a href="https://github.com/EdwinZDZ/ink-motion">GitHub</a>
+        <a href="../README.md">README</a>
+        <span>AGPL-3.0</span>
+      </nav>
     </header>
 
-    <section class="stage" id="stage-structure">
-      <div class="stage__head">
-        <h2>01 — Draw once</h2>
-        <p>
-          Enters the viewport, draws every stroke at ~620 units per second, in
-          DOM order.
-        </p>
-      </div>
-      <svg
-        class="ink ink-structure"
-        viewBox="0 0 420 300"
-        data-ink
-        role="img"
-        aria-label="One line of dialogue branching into a script, a storyboard and an image"
-      >
-        <path
-          data-ink-draw
-          data-ink-delay="0"
-          pathLength="1"
-          d="M40 44 C120 40 220 42 300 44 C310 44 316 50 316 60 L316 100 C316 110 310 116 300 116 L132 114 L110 136 L118 112 L56 112 C46 112 40 106 40 96 L40 60 C40 50 40 44 40 44"
-        />
-        <path
-          class="soft"
-          data-ink-draw
-          data-ink-delay="240"
-          pathLength="1"
-          d="M62 66 C104 63 148 65 186 64"
-        />
-        <path
-          class="soft"
-          data-ink-draw
-          data-ink-delay="300"
-          pathLength="1"
-          d="M62 84 C96 82 132 84 166 83"
-        />
-        <path
-          data-ink-draw
-          data-ink-delay="420"
-          pathLength="1"
-          d="M178 118 C150 148 120 168 100 186"
-        />
-        <path
-          data-ink-draw
-          data-ink-delay="470"
-          pathLength="1"
-          d="M178 118 L216 186"
-        />
-        <path
-          data-ink-draw
-          data-ink-delay="520"
-          pathLength="1"
-          d="M178 118 C212 148 250 168 276 186"
-        />
-        <path
-          data-ink-draw
-          data-ink-delay="620"
-          pathLength="1"
-          d="M54 190 C80 187 120 189 146 190 C150 190 152 193 152 197 L151 266 C151 270 148 272 144 272 L57 271 C53 271 50 268 50 264 L52 195 C52 191 52 190 54 190"
-        />
-        <path
-          class="soft"
-          data-ink-draw
-          data-ink-delay="680"
-          pathLength="1"
-          d="M64 206 C84 204 108 206 134 204"
-        />
-        <path
-          class="soft"
-          data-ink-draw
-          data-ink-delay="710"
-          pathLength="1"
-          d="M64 224 C82 222 100 224 118 223"
-        />
-        <path
-          class="soft"
-          data-ink-draw
-          data-ink-delay="740"
-          pathLength="1"
-          d="M64 242 C80 240 94 242 108 241"
-        />
-        <path
-          data-ink-draw
-          data-ink-delay="620"
-          pathLength="1"
-          d="M172 190 C198 187 238 189 260 190 C264 190 266 193 266 197 L265 266 C265 270 262 272 258 272 L175 271 C171 271 168 268 168 264 L170 195 C170 191 170 190 172 190"
-        />
-        <path
-          class="soft"
-          data-ink-draw
-          data-ink-delay="760"
-          pathLength="1"
-          d="M216 196 L216 266"
-        />
-        <path
-          class="soft"
-          data-ink-draw
-          data-ink-delay="790"
-          pathLength="1"
-          d="M172 231 L262 230"
-        />
-        <path
-          data-ink-draw
-          data-ink-delay="620"
-          pathLength="1"
-          d="M290 190 C316 187 356 189 378 190 C382 190 384 193 384 197 L383 266 C383 270 380 272 376 272 L293 271 C289 271 286 268 286 264 L288 195 C288 191 288 190 290 190"
-        />
-        <path
-          data-ink-draw
-          data-ink-delay="800"
-          pathLength="1"
-          d="M298 262 C310 240 320 226 328 224 C338 222 350 242 362 260"
-        />
-        <circle
-          class="soft"
-          data-ink-draw
-          data-ink-delay="840"
-          pathLength="1"
-          cx="352"
-          cy="212"
-          r="9"
-        />
-        <circle
-          class="clay"
-          data-ink-drop
-          data-ink-delay="980"
-          cx="128"
-          cy="108"
-          r="3.2"
-        />
-        <circle
-          class="clay"
-          data-ink-drop
-          data-ink-delay="1040"
-          cx="216"
-          cy="252"
-          r="2.6"
-        />
-      </svg>
-    </section>
+    <div class="shell">
+      <section class="workbench" aria-labelledby="benchTitle">
+        <div class="controls">
+          <p class="controls__intro">
+            Change the timing, not the drawing. Every control below re-runs the
+            same 61 strokes through the module.
+          </p>
 
-    <section class="stage" id="stage-scrub">
-      <div class="stage__head">
-        <h2>02 — Scrub with scroll</h2>
-        <p>
-          Every stroke is tied to progress. Scroll down and it draws; scroll up
-          and it un-draws.
-        </p>
-      </div>
-      <div class="scene-wrap">
-        <div class="scene-bar">
-          <span>progress</span>
-          <span class="scene-bar__track"
-            ><span class="scene-bar__fill" id="scrubFill"></span
-          ></span>
-          <span id="scrubPct">0%</span>
+          <div class="control">
+            <span class="label">Mode</span>
+            <div class="segmented" role="group" aria-label="Playback mode">
+              <button type="button" data-mode="play" aria-pressed="true">
+                play once
+              </button>
+              <button type="button" data-mode="scrub" aria-pressed="false">
+                scrub
+              </button>
+            </div>
+            <p class="control__hint">
+              play = constant pen speed · scrub = one progress value
+            </p>
+          </div>
+
+          <div class="control">
+            <div class="control__top">
+              <label class="label" for="speed">Pen speed</label>
+              <span class="control__value" id="speedVal">620 u/s</span>
+            </div>
+            <input
+              id="speed"
+              type="range"
+              min="120"
+              max="1600"
+              step="20"
+              value="620"
+            />
+            <p class="control__hint">duration = measured length / speed</p>
+          </div>
+
+          <div class="control">
+            <div class="control__top">
+              <label class="label" for="stagger">Stagger</label>
+              <span class="control__value" id="staggerVal">24 ms</span>
+            </div>
+            <input
+              id="stagger"
+              type="range"
+              min="0"
+              max="140"
+              step="2"
+              value="24"
+            />
+            <p class="control__hint">
+              gap between strokes without an explicit delay
+            </p>
+          </div>
+
+          <div class="control">
+            <div class="control__top">
+              <label class="label" for="gap">Stage gap · scrub</label>
+              <span class="control__value" id="gapVal">0.22</span>
+            </div>
+            <input
+              id="gap"
+              type="range"
+              min="0.08"
+              max="0.3"
+              step="0.01"
+              value="0.22"
+              disabled
+            />
+          </div>
+
+          <div class="control">
+            <div class="control__top">
+              <label class="label" for="progress">Progress · scrub</label>
+              <span class="control__value" id="progressVal">0%</span>
+            </div>
+            <input
+              id="progress"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value="0"
+              disabled
+            />
+            <p class="control__hint">
+              drag back to un-draw — no timeline state
+            </p>
+          </div>
+
+          <button class="button" id="replay" type="button">
+            Replay drawing
+          </button>
+
+          <div class="readout">
+            <dl>
+              <dt>strokes</dt>
+              <dd id="strokeCount">—</dd>
+              <dt>longest</dt>
+              <dd id="longest">—</dd>
+              <dt>shortest</dt>
+              <dd id="shortest">—</dd>
+              <dt>total</dt>
+              <dd id="stateVal">—</dd>
+              <dt>dependencies</dt>
+              <dd>0</dd>
+            </dl>
+          </div>
         </div>
-        <svg class="ink ink-scene" viewBox="0 0 560 700" data-ink-scrub>
-          <!-- 01 · 灯轨、灯罩与光锥 -->
-          <path
-            data-ink-draw
-            data-ink-stage="0"
-            pathLength="1"
-            d="M40 26 C160 22 400 24 520 27"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="0"
-            pathLength="1"
-            d="M120 27 L120 44"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="0"
-            pathLength="1"
-            d="M280 25 L280 42"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="0"
-            pathLength="1"
-            d="M430 26 L430 43"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="0"
-            pathLength="1"
-            d="M110 44 L130 44 L126 57 L114 57 Z"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="0"
-            pathLength="1"
-            d="M270 42 L290 42 L286 55 L274 55 Z"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="0"
-            pathLength="1"
-            d="M420 43 L440 43 L436 56 L424 56 Z"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="0"
-            pathLength="1"
-            d="M116 58 C108 140 100 230 94 320"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="0"
-            pathLength="1"
-            d="M124 58 C134 142 144 232 152 320"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="0"
-            pathLength="1"
-            d="M280 56 C274 148 270 240 268 330"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="0"
-            pathLength="1"
-            d="M284 56 C290 150 296 242 298 330"
-          />
-          <!-- 02 · 分镜墙外框与四列两行 -->
-          <path
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M40 70 C170 66 390 68 518 71 C521 71 523 74 523 78 L522 386 C522 389 519 391 515 391 L46 389 C42 389 39 386 39 382 L40 76 C40 72 40 70 40 70"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="0"
-            pathLength="1"
-            d="M160 70 C158 180 162 300 160 390"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="0"
-            pathLength="1"
-            d="M280 69 C278 180 282 300 280 390"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="0"
-            pathLength="1"
-            d="M400 70 C398 180 402 300 400 390"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="0"
-            pathLength="1"
-            d="M40 230 C170 227 380 232 522 229"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M40 401 C180 397 380 403 522 399"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M70 78 L92 74"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M470 78 L492 74"
-          />
-          <!-- 03 · 八格分镜：远景 / 人物 / 日与云 / 楼 / 门 / 树 / 斜构图 / 窗 -->
-          <path
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M52 218 C74 176 96 152 110 150 C128 148 144 178 158 216"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M52 219 C88 215 124 217 158 216"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M96 172 C104 164 114 160 122 162"
-          />
-          <circle
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            cx="220"
-            cy="160"
-            r="16"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M196 218 C202 190 210 176 220 174 C230 176 238 190 244 218"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M192 204 C204 198 236 198 248 204"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M292 218 C322 214 366 216 388 215"
-          />
-          <circle
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            cx="340"
-            cy="160"
-            r="20"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M300 132 C310 124 322 120 332 120"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M350 128 C362 122 374 122 384 127"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M412 218 L412 118 C412 110 418 104 426 104 L480 104 L480 218"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M480 150 L512 150 L512 218"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M428 128 L448 128 L448 146 L428 146 Z"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M60 372 L60 286 C60 274 70 266 82 266 L124 268 C134 268 140 276 140 286 L140 372"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M60 348 C80 344 120 344 140 348"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M220 372 C221 330 219 284 220 258"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M220 306 C202 288 190 280 180 276"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M220 282 C234 266 246 260 256 257"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M292 372 C316 330 348 296 392 266"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M292 334 C318 318 344 308 372 302"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M412 372 L412 272 C412 264 418 258 426 258 L498 258 L498 372"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M455 258 L455 372"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="1"
-            pathLength="1"
-            d="M412 315 L498 315"
-          />
-          <!-- 04 · 左侧窗：夜色与百叶 -->
-          <path
-            data-ink-draw
-            data-ink-stage="2"
-            pathLength="1"
-            d="M26 620 L26 452 C26 444 32 438 40 438 L104 438 C112 438 118 444 118 452 L118 620"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="2"
-            pathLength="1"
-            d="M72 438 L72 620"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="2"
-            pathLength="1"
-            d="M26 500 L118 500"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="2"
-            pathLength="1"
-            d="M26 560 L118 560"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="2"
-            pathLength="1"
-            d="M30 456 C58 452 90 454 114 456"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="2"
-            pathLength="1"
-            d="M32 468 L112 468"
-          />
-          <circle
-            class="soft"
-            data-ink-draw
-            data-ink-stage="2"
-            pathLength="1"
-            cx="102"
-            cy="530"
-            r="3.2"
-          />
-          <!-- 05 · 站在墙前的人：背影，右手抬起来指着一格 -->
-          <path
-            data-ink-draw
-            data-ink-stage="3"
-            pathLength="1"
-            d="M270 452 C270 424 288 406 312 407 C336 408 354 426 354 452 C354 476 342 492 326 496 C323 498 301 498 298 496 C282 492 270 476 270 452"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="3"
-            pathLength="1"
-            d="M258 528 C268 494 286 476 312 475 C338 476 358 494 368 528"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="3"
-            pathLength="1"
-            d="M258 528 C256 570 258 616 266 632 C270 645 272 654 272 660"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="3"
-            pathLength="1"
-            d="M368 528 C370 570 368 616 360 632 C356 645 354 654 354 660"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="3"
-            pathLength="1"
-            d="M312 610 C313 630 312 648 312 660"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="3"
-            pathLength="1"
-            d="M366 536 C392 508 414 486 432 466"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="3"
-            pathLength="1"
-            d="M432 466 C440 458 448 461 450 468"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="3"
-            pathLength="1"
-            d="M432 466 L424 458"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="3"
-            pathLength="1"
-            d="M266 536 C256 578 258 620 262 650"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="3"
-            pathLength="1"
-            d="M286 560 C292 590 290 620 288 650"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="3"
-            pathLength="1"
-            d="M344 560 C338 590 340 620 342 650"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="3"
-            pathLength="1"
-            d="M294 486 C304 494 320 494 330 486"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="3"
-            pathLength="1"
-            d="M278 448 C282 424 296 410 312 409 C330 408 344 420 348 442"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="3"
-            pathLength="1"
-            d="M262 540 C286 534 338 534 362 540"
-          />
-          <!-- 06 · 摄影机、电缆与地面 -->
-          <path
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            d="M470 570 L428 664"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            d="M470 570 L512 664"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            d="M470 570 L472 664"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            d="M440 620 C454 612 490 612 504 620"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            d="M410 512 C410 500 418 492 430 492 L494 492 C506 492 514 500 514 512 L514 550 C514 560 506 566 494 566 L430 566 C418 566 410 560 410 550 Z"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            d="M514 520 C528 518 538 526 538 534 C538 542 528 550 514 548"
-          />
-          <circle
-            class="soft"
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            cx="532"
-            cy="534"
-            r="10"
-          />
-          <circle
-            class="soft"
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            cx="532"
-            cy="534"
-            r="5"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            d="M462 492 L462 566"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            d="M420 492 L420 470 L448 470 L448 492"
-          />
-          <circle
-            class="soft"
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            cx="440"
-            cy="464"
-            r="17"
-          />
-          <circle
-            class="soft"
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            cx="478"
-            cy="464"
-            r="13"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            d="M514 560 C534 584 512 604 530 626 C544 642 524 654 536 666"
-          />
-          <path
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            d="M20 664 C180 660 420 666 544 662"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            d="M92 664 L108 700"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            d="M226 665 L232 700"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            d="M366 665 L370 700"
-          />
-          <path
-            class="soft"
-            data-ink-draw
-            data-ink-stage="4"
-            pathLength="1"
-            d="M488 664 L500 700"
-          />
-          <!-- 07 · 陶土点缀与光尘 -->
-          <circle
-            class="clay"
-            data-ink-drop
-            data-start="0.5"
-            cx="340"
-            cy="160"
-            r="3.6"
-          />
-          <circle
-            class="clay"
-            data-ink-drop
-            data-start="0.74"
-            cx="504"
-            cy="502"
-            r="3"
-          />
-          <circle
-            class="clay"
-            data-ink-drop
-            data-start="0.36"
-            cx="48"
-            cy="470"
-            r="2.2"
-          />
-          <circle
-            class="dust"
-            data-ink-drop
-            data-start="0.42"
-            cx="150"
-            cy="300"
-            r="1.8"
-          />
-          <circle
-            class="dust"
-            data-ink-drop
-            data-start="0.56"
-            cx="236"
-            cy="120"
-            r="1.5"
-          />
-          <circle
-            class="dust"
-            data-ink-drop
-            data-start="0.64"
-            cx="392"
-            cy="232"
-            r="1.6"
-          />
-          <circle
-            class="dust"
-            data-ink-drop
-            data-start="0.8"
-            cx="88"
-            cy="360"
-            r="1.4"
-          />
-          <circle
-            class="dust"
-            data-ink-drop
-            data-start="0.88"
-            cx="300"
-            cy="200"
-            r="1.9"
-          />
-        </svg>
-      </div>
-    </section>
 
-    <section class="stage" id="stage-glyph">
-      <div class="stage__head">
-        <h2>03 — Spring landing</h2>
-        <p>
-          Dots and cards land with a damped spring (stiffness 180, damping 22)
-          instead of a linear fade.
+        <div class="canvas">
+          <div class="section-head">
+            <h2 id="benchTitle">01 / Workbench</h2>
+            <p>参数与实时预览 · the same drawing, every time</p>
+          </div>
+          <div class="canvas__frame" id="canvasFrame"></div>
+          <div class="canvas__meta">
+            <span>61 strokes · 4 stages · hand-drawn paths</span>
+            <span id="canvasMeta">play once · 620 u/s</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="compare" aria-labelledby="compareTitle">
+        <div class="section-head">
+          <h2 id="compareTitle">02 / Why constant pen speed</h2>
+          <p>同一幅图，同一时钟 · only the duration rule changes</p>
+        </div>
+
+        <div class="compare__grid">
+          <div class="compare__cell">
+            <h3>NAIVE <span>equal duration</span></h3>
+            <div id="compareA"></div>
+            <p class="compare__caption">
+              Every stroke gets 620 ms. A 1,197-unit contour and a 6-unit tick
+              finish together.
+            </p>
+          </div>
+          <div class="compare__divider" aria-hidden="true"></div>
+          <div class="compare__cell">
+            <h3>INK-MOTION <span>length / speed</span></h3>
+            <div id="compareB"></div>
+            <p class="compare__caption">
+              Each stroke gets its measured length divided by 620 units per
+              second. The pen keeps one speed.
+            </p>
+          </div>
+        </div>
+
+        <div class="compare__actions">
+          <button class="button" id="comparePlay" type="button">
+            Play both
+          </button>
+          <div class="compare__clock">
+            <label class="label" for="compareProgress">t</label>
+            <input
+              id="compareProgress"
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              value="100"
+            />
+            <span id="compareClock">0.00 / 0.00 s</span>
+          </div>
+        </div>
+        <p class="compare__note">
+          Both panels start with identical SVG, identical delays and the same
+          number of strokes. The only difference is
+          <code>duration = 620 ms</code> versus
+          <code>duration = length / speed</code>. Equal durations make long
+          contours sprint and short ticks crawl; length-derived durations read
+          as one pen moving across the page.
         </p>
-      </div>
-      <div class="glyph-row">
-        <svg
-          class="ink ink-glyph"
-          viewBox="0 0 44 44"
-          data-ink
-          aria-hidden="true"
-        >
-          <path
-            data-ink-draw
-            data-ink-delay="0"
-            pathLength="1"
-            d="M7 13 C18 11 30 12 37 13 C39 13 40 15 40 17 L40 34 C40 36 38 37 36 37 L9 36 C7 36 6 35 6 33 L6 16 C6 14 6 13 7 13 Z"
-          />
-          <path
-            data-ink-draw
-            data-ink-delay="140"
-            pathLength="1"
-            d="M23 13 C23 20 23 28 23 36"
-          />
-          <path
-            data-ink-draw
-            data-ink-delay="220"
-            pathLength="1"
-            d="M7 24 C14 23 30 24 39 23"
-          />
-          <g class="chapter-glyph__detail" data-ink-fade data-ink-delay="360">
-            <path d="M10 17 C13 16 17 17 20 16" />
-            <path d="M10 20 C12 19 15 20 18 19" />
-            <path d="M10 29 C14 28 18 29 20 28" />
-            <path d="M27 16 C30 15 34 16 36 16 L36 20 C33 20 30 19 27 20 Z" />
-            <path d="M27 33 C29 30 31 28 33 30 C35 31 36 32 37 33" />
-          </g>
-          <path
-            class="chapter-glyph__lead"
-            data-ink-draw
-            data-ink-delay="300"
-            pathLength="1"
-            d="M22 3 C22 6 22 9 22 12"
-          />
-          <path
-            class="clay"
-            data-ink-fade
-            data-ink-delay="520"
-            d="M20 2 C21 1 23 1 24 2 C25 3 25 5 24 6 C23 7 21 7 20 6 C19 5 19 3 20 2 Z"
-          />
-        </svg>
-        <svg
-          class="ink ink-glyph"
-          viewBox="0 0 44 44"
-          data-ink
-          aria-hidden="true"
-        >
-          <path
-            data-ink-draw
-            data-ink-delay="0"
-            pathLength="1"
-            d="M7 13 C18 11 30 12 37 13 C39 13 40 15 40 17 L40 34 C40 36 38 37 36 37 L9 36 C7 36 6 35 6 33 L6 16 C6 14 6 13 7 13 Z"
-          />
-          <path
-            data-ink-draw
-            data-ink-delay="140"
-            pathLength="1"
-            d="M23 13 C23 20 23 28 23 36"
-          />
-          <path
-            data-ink-draw
-            data-ink-delay="220"
-            pathLength="1"
-            d="M7 24 C14 23 30 24 39 23"
-          />
-          <g class="chapter-glyph__detail" data-ink-fade data-ink-delay="360">
-            <path d="M10 17 C13 16 17 17 20 16" />
-            <path d="M10 20 C12 19 15 20 18 19" />
-            <path d="M10 29 C14 28 18 29 20 28" />
-            <path d="M27 16 C30 15 34 16 36 16 L36 20 C33 20 30 19 27 20 Z" />
-            <path d="M27 33 C29 30 31 28 33 30 C35 31 36 32 37 33" />
-          </g>
-          <path
-            class="chapter-glyph__lead"
-            data-ink-draw
-            data-ink-delay="300"
-            pathLength="1"
-            d="M22 3 C22 6 22 9 22 12"
-          />
-          <path
-            class="clay"
-            data-ink-fade
-            data-ink-delay="520"
-            d="M20 2 C21 1 23 1 24 2 C25 3 25 5 24 6 C23 7 21 7 20 6 C19 5 19 3 20 2 Z"
-          />
-        </svg>
-      </div>
-    </section>
+      </section>
+
+      <section class="usage" aria-labelledby="usageTitle">
+        <div>
+          <div class="section-head">
+            <h2 id="usageTitle">03 / Use</h2>
+            <p>两行接入 · no build step</p>
+          </div>
+          <pre><code>&lt;<span class="k">svg</span> class="ink" viewBox="70 125 470 415" data-ink&gt;
+  &lt;<span class="k">path</span> data-ink-draw data-ink-delay="0" pathLength="1" d="M112 158 C200 150 …" /&gt;
+  &lt;<span class="k">circle</span> data-ink-drop data-ink-delay="900" cx="262" cy="342" r="3.4" /&gt;
+&lt;/<span class="k">svg</span>&gt;
+
+<span class="c">// draw once, at a constant pen speed</span>
+<span class="k">import</span> { playInk, scrubInk } <span class="k">from</span> "./ink-motion.js";
+playInk(document.querySelector(".ink"), { speed: 620 });
+
+<span class="c">// …or drive every stroke from one progress value</span>
+scrubInk(document.querySelector(".ink"), {
+  section: document.querySelector("#scene"),
+}).bind();</code></pre>
+        </div>
+        <aside class="usage__aside">
+          <p class="label">At a glance</p>
+          <ul>
+            <li>runtime dependencies <b>0</b></li>
+            <li>module <b>6.9 kB</b></li>
+            <li>exports <b>3</b></li>
+            <li>getTotalLength() calls <b>1 / stroke</b></li>
+            <li>loops / autoplay <b>0</b></li>
+            <li>reduced-motion <b>final state</b></li>
+            <li>no-JS fallback <b>plain SVG</b></li>
+            <li>license <b>AGPL-3.0</b></li>
+          </ul>
+          <p>
+            The engine owns timing only. How the ink looks — stroke weight,
+            hatching, uneven handles — belongs to your paths and CSS.
+          </p>
+        </aside>
+      </section>
+    </div>
 
     <footer class="foot">
-      <span>MIT · zero dependencies</span>
-      <span>demo/index.html</span>
+      <span>AGPL-3.0 · © 2026 EdwinZDZ</span>
+      <span>src/ink-motion.js · demo/index.html</span>
     </footer>
 
-    <script type="module">
-      import { playInk, scrubInk } from "../src/ink-motion.js";
+    <template id="artTpl">
+      <svg
+        class="ink ink-art"
+        viewBox="70 125 470 415"
+        data-ink
+        role="img"
+        aria-label="An archival notebook drawn in ink, with a sun motif on the cover"
+      >
+        <g filter="url(#inkWobble)">
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M112 158 C200 150 320 152 406 156 C412 156 416 160 416 166 L412 448 C412 455 408 458 402 458 L116 454 C110 454 106 450 106 444 L110 166 C110 161 110 158 112 158"
+            data-ink-delay="0"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M108 156 C102 150 98 148 94 147"
+            data-ink-delay="26"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M406 154 C414 150 420 150 424 152"
+            data-ink-delay="52"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M134 158 C131 250 133 360 130 452"
+            data-ink-delay="78"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M146 158 C143 250 145 360 142 453"
+            data-ink-delay="104"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M110 224 C116 221 124 221 130 224"
+            data-ink-delay="130"
+          />
+          <circle
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            cx="120"
+            cy="224"
+            r="3"
+            data-ink-delay="156"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M110 306 C116 303 124 303 130 306"
+            data-ink-delay="182"
+          />
+          <circle
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            cx="120"
+            cy="306"
+            r="3"
+            data-ink-delay="208"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            d="M110 388 C116 385 124 385 130 388"
+            data-ink-delay="234"
+          />
+          <circle
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            pathLength="1"
+            cx="120"
+            cy="388"
+            r="3"
+            data-ink-delay="260"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M168 200 C230 196 316 198 366 200 C370 200 372 203 372 207 L370 262 C370 265 367 267 363 267 L170 264 C166 264 164 261 164 257 L166 205 C166 201 166 200 168 200"
+            data-ink-delay="190"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M180 218 C210 214 228 220 256 216 C282 212 306 218 344 215"
+            data-ink-delay="216"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M180 232 C206 228 226 234 250 230 C272 227 292 232 312 229"
+            data-ink-delay="242"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M180 246 C202 242 220 248 240 245 C258 242 268 246 280 243"
+            data-ink-delay="268"
+          />
+          <g class="sketch-sun">
+            <path
+              class="contour"
+              data-ink-draw
+              data-ink-stage="1"
+              pathLength="1"
+              d="M262 292 C292 290 320 314 322 342 C324 372 300 392 270 392 C240 392 216 370 216 342 C216 314 234 294 262 292"
+              data-ink-delay="294"
+            />
+            <path
+              class="fine"
+              data-ink-draw
+              data-ink-stage="1"
+              pathLength="1"
+              d="M262 278 L261 266"
+              data-ink-delay="320"
+            />
+            <path
+              class="fine"
+              data-ink-draw
+              data-ink-stage="1"
+              pathLength="1"
+              d="M298 288 L304 277"
+              data-ink-delay="346"
+            />
+            <path
+              class="fine"
+              data-ink-draw
+              data-ink-stage="1"
+              pathLength="1"
+              d="M322 316 L333 309"
+              data-ink-delay="372"
+            />
+            <path
+              class="fine"
+              data-ink-draw
+              data-ink-stage="1"
+              pathLength="1"
+              d="M328 342 L339 341"
+              data-ink-delay="398"
+            />
+            <path
+              class="fine"
+              data-ink-draw
+              data-ink-stage="1"
+              pathLength="1"
+              d="M314 370 L321 379"
+              data-ink-delay="424"
+            />
+            <path
+              class="fine"
+              data-ink-draw
+              data-ink-stage="1"
+              pathLength="1"
+              d="M286 388 L290 399"
+              data-ink-delay="450"
+            />
+            <path
+              class="fine"
+              data-ink-draw
+              data-ink-stage="1"
+              pathLength="1"
+              d="M206 320 L197 314"
+              data-ink-delay="476"
+            />
+            <path
+              class="fine"
+              data-ink-draw
+              data-ink-stage="1"
+              pathLength="1"
+              d="M226 286 L220 277"
+              data-ink-delay="502"
+            />
+          </g>
+          <path
+            class="ghost"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M152 180 C230 174 320 176 390 180 C394 180 396 183 396 187 L393 432 C393 436 390 438 386 438 L154 435 C150 435 147 432 147 428 L150 185 C150 181 150 180 152 180"
+            data-ink-delay="528"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M140 200 l12 3"
+            data-ink-delay="554"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M140 166 l12 3"
+            data-ink-delay="580"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M140 132 l12 3"
+            data-ink-delay="606"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M140 98 l12 3"
+            data-ink-delay="632"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M140 64 l12 3"
+            data-ink-delay="658"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M140 30 l12 3"
+            data-ink-delay="684"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M134 166 L142 166 L138 174 Z"
+            data-ink-delay="710"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M400 164 L408 164 L404 172 Z"
+            data-ink-delay="736"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M130 444 L138 444 L134 452 Z"
+            data-ink-delay="762"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M396 446 L404 446 L400 454 Z"
+            data-ink-delay="788"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            d="M120 306 L120 500"
+            data-ink-delay="380"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            d="M126 500 L114 512 L120 500"
+            data-ink-delay="406"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M234 322 C240 316 250 314 258 316"
+            data-ink-delay="814"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M292 362 C288 368 280 372 272 372"
+            data-ink-delay="840"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M262 306 L262 312"
+            data-ink-delay="866"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            pathLength="1"
+            d="M262 372 L262 378"
+            data-ink-delay="892"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M408 296 C412 302 414 308 414 314"
+            data-ink-delay="570"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M110 268 C106 274 106 280 108 286"
+            data-ink-delay="596"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M402 440 C396 444 392 448 390 452"
+            data-ink-delay="622"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            d="M412 408 C400 418 390 432 384 450"
+            data-ink-delay="432"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            d="M384 450 C396 444 406 432 412 408"
+            data-ink-delay="458"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            d="M412 408 C418 410 421 414 423 419"
+            data-ink-delay="484"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            d="M118 458 C200 462 320 464 404 460"
+            data-ink-delay="510"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            d="M124 465 C200 469 316 471 398 467"
+            data-ink-delay="536"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            d="M130 472 C196 476 310 478 392 474"
+            data-ink-delay="562"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            pathLength="1"
+            d="M136 479 C194 482 304 484 386 481"
+            data-ink-delay="588"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M398 424 l-22 22"
+            data-ink-delay="648"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M398 414 l-22 22"
+            data-ink-delay="674"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M398 404 l-22 22"
+            data-ink-delay="700"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M398 394 l-22 22"
+            data-ink-delay="726"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M398 384 l-22 22"
+            data-ink-delay="752"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M160 440 l-20 14"
+            data-ink-delay="778"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M160 431 l-20 14"
+            data-ink-delay="804"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M160 422 l-20 14"
+            data-ink-delay="830"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M160 413 l-20 14"
+            data-ink-delay="856"
+          />
+          <path
+            class="ghost"
+            data-ink-draw
+            data-ink-stage="3"
+            pathLength="1"
+            d="M108 456 C190 462 320 464 410 460"
+            data-ink-delay="882"
+          />
+          <text
+            class="note"
+            data-ink-drop
+            data-ink-start="0.6"
+            x="168"
+            y="496"
+            font-size="10"
+            data-ink-delay="900"
+          >
+            ARCHIVE / 01—12
+          </text>
+          <text
+            class="note"
+            data-ink-drop
+            data-ink-start="0.64"
+            x="366"
+            y="496"
+            font-size="9"
+            data-ink-delay="960"
+          >
+            SC.04
+          </text>
+          <circle
+            class="sketch-clay"
+            data-ink-drop
+            data-ink-start="0.56"
+            cx="262"
+            cy="342"
+            r="3.4"
+            data-ink-delay="840"
+          />
+          <circle
+            class="sketch-clay"
+            data-ink-drop
+            data-ink-start="0.46"
+            cx="366"
+            cy="207"
+            r="2.2"
+            data-ink-delay="690"
+          />
+          <circle
+            class="sketch-clay"
+            data-ink-drop
+            data-ink-start="0.72"
+            cx="384"
+            cy="450"
+            r="2.2"
+            data-ink-delay="1080"
+          />
+          <circle
+            class="sketch-dot"
+            data-ink-drop
+            data-ink-start="0.4"
+            cx="120"
+            cy="306"
+            r="1.6"
+            data-ink-delay="600"
+          />
+          <circle
+            class="sketch-dot"
+            data-ink-drop
+            data-ink-start="0.62"
+            cx="216"
+            cy="342"
+            r="1.4"
+            data-ink-delay="930"
+          />
+          <circle
+            class="sketch-dot"
+            data-ink-drop
+            data-ink-start="0.7"
+            cx="322"
+            cy="260"
+            r="1.5"
+            data-ink-delay="1050"
+          />
+          <circle
+            class="sketch-dot"
+            data-ink-drop
+            data-ink-start="0.78"
+            cx="160"
+            cy="380"
+            r="1.3"
+            data-ink-delay="1170"
+          />
+          <circle
+            class="sketch-dot"
+            data-ink-drop
+            data-ink-start="0.88"
+            cx="300"
+            cy="500"
+            r="1.6"
+            data-ink-delay="1320"
+          />
+        </g>
+      </svg>
+    </template>
 
-      playInk(document.querySelector(".ink-structure"));
-      document
-        .querySelectorAll(".ink-glyph")
-        .forEach((el) => playInk(el, { stagger: 60 }));
-
-      const fill = document.getElementById("scrubFill");
-      const pct = document.getElementById("scrubPct");
-      const scrub = scrubInk(document.querySelector(".ink-scene"), {
-        section: document.getElementById("stage-scrub"),
-        onUpdate: (p) => {
-          fill.style.width = (p * 100).toFixed(1) + "%";
-          pct.textContent = Math.round(p * 100) + "%";
-        },
-      });
-      scrub.bind();
-    </script>
+    <script type="module" src="./demo.js"></script>
   </body>
 </html>

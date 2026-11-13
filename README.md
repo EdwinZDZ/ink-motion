@@ -1,135 +1,129 @@
 # ink-motion
 
-Hand-drawn SVG line art that draws itself: constant pen speed, spring landing, scroll scrub. One file, no dependencies, no build step.
+A timing engine for hand-drawn SVG. It does not draw anything — it decides **when each stroke finishes**.
 
-![Demo: a hand-drawn diagram drawing itself, then a storyboard studio scene scrubbed by scroll](media/demo.gif)
+![The same drawing, same clock, two duration rules: equal duration on the left, length divided by speed on the right](media/demo.gif)
 
-## Why this exists
+`src/ink-motion.js` · 6.9 kB · one ES module · zero dependencies · no build step · AGPL-3.0
 
-We rebuilt the landing page of an AI storyboarding product and wanted the diagrams to feel drawn, not revealed. The usual fade-and-translate tricks looked like a template. After surveying how existing SVG line-drawing libraries work — **Vivus** (one-by-one drawing, duration from path length), **CC-lineart** (hand-drawn path conventions), **line-art-animation** (spring and pendulum motion), **runway-svg-animation** (outside-in sequencing) and **Morrph** (expo-out easing) — we kept the ideas and wrote one small module instead of adding a dependency.
+## The problem
 
-The result is this file: `src/ink-motion.js`, about 200 lines, no imports.
+Give every path the same duration and a 1,197-unit contour finishes at the same moment as a 6-unit tick. Long lines sprint, short ticks crawl, and the result reads as a reveal effect rather than a pen moving across paper.
 
-## What it does
+The animation above uses identical SVG on both sides, identical stroke order and identical delays. Only the duration rule differs:
 
-- **Constant pen speed.** Every stroke takes `length / speed` milliseconds, so a long horizon line does not finish at the same time as a short tick.
-- **Spring landing.** Dots and cards settle with a damped spring (stiffness 180, damping 22) rather than a linear fade.
-- **Scroll scrub.** In scrub mode nothing plays on its own. Progress drives `stroke-dashoffset`, so scrolling down draws and scrolling up un-draws. No loop, no autoplay.
-- **Honest fallbacks.** `prefers-reduced-motion` jumps to the final state. Without JavaScript the strokes can be shown with a `noscript` rule; the markup is plain SVG.
+|       | rule                                       | at 1.17 s                                                              |
+| ----- | ------------------------------------------ | ---------------------------------------------------------------------- |
+| left  | `duration = 620 ms`                        | the outer contour is already closed; short ticks are still creeping in |
+| right | `duration = length / 620 units per second` | the outer contour is half drawn; short ticks landed instantly          |
 
-## Quick start
+`playInk` uses the second rule. `scrubInk` applies the same idea to a progress value instead of a clock.
 
-**1.** Copy `src/ink-motion.js` into your project. It is an ES module with zero imports.
+## Use
 
-**2.** Mark up your SVG. `pathLength="1"` is required — it normalizes every path so one dashoffset value works everywhere.
+Copy `src/ink-motion.js` into your project. `pathLength="1"` is required: it normalizes each path so one `stroke-dashoffset` value works for every stroke.
 
 ```html
-<svg class="ink" viewBox="0 0 420 300" data-ink>
-  <path data-ink-draw data-ink-delay="0" pathLength="1" d="M40 44 C120 40 …" />
-  <path data-ink-draw data-ink-delay="240" pathLength="1" d="M178 118 L216 186" />
-  <circle data-ink-drop data-ink-delay="980" cx="128" cy="108" r="3.2" />
+<svg class="ink" viewBox="70 125 470 415" data-ink>
+  <path
+    data-ink-draw
+    data-ink-delay="0"
+    pathLength="1"
+    d="M112 158 C200 150 …"
+  />
+  <circle data-ink-drop data-ink-delay="900" cx="262" cy="342" r="3.4" />
 </svg>
 ```
-
-**3.** Two lines of JavaScript.
 
 ```js
 import { playInk, scrubInk } from "./ink-motion.js";
 
-// Draw once when it scrolls into view
-playInk(document.querySelector(".ink"));
+// draw once, at a constant pen speed
+playInk(document.querySelector(".ink"), { speed: 620 });
 
-// …or tie every stroke to scroll progress
-scrubInk(document.querySelector(".ink-scene"), {
-  section: document.querySelector("#stage-scrub"),
+// or drive every stroke from one progress value
+scrubInk(document.querySelector(".ink"), {
+  section: document.querySelector("#scene"),
 }).bind();
 ```
 
-CSS only has to declare how your ink looks:
+Styling is yours — stroke weight, hatching and uneven handles belong to the paths and CSS, not to the engine:
 
 ```css
 .ink path,
 .ink circle {
   fill: none;
-  stroke: #1c1915;
-  stroke-width: 1.05;
+  stroke: #1b1915;
+  stroke-width: 1.2;
   stroke-linecap: round;
-  stroke-linejoin: round;
 }
 ```
 
-## How it works
+## Two modes
 
-### 1. Normalize with `pathLength="1"`
+|                  | `playInk`                     | `scrubInk`                               |
+| ---------------- | ----------------------------- | ---------------------------------------- |
+| driven by        | elapsed time                  | one progress value `0…1`                 |
+| duration         | `getTotalLength() / speed`    | stage grouping + a fixed progress window |
+| plays on its own | once, on intersection         | never                                    |
+| scrolling back   | n/a                           | un-draws, for free                       |
+| returns          | `{ play, duration, destroy }` | `{ update, bind }`                       |
 
-A path's real length might be 12 units or 1,400. Setting `pathLength="1"` makes the browser treat every path as one unit long, so `stroke-dasharray: 1` and a `stroke-dashoffset` between 1 and 0 produces the same draw-in behavior everywhere.
+![Drag the progress slider: strokes appear, then retreat as it is dragged back](media/scrub.gif)
 
-### 2. Measure once, derive duration
-
-`getTotalLength()` still returns the real geometry length. Duration is `length / speed` (default 620 units per second), measured a single time up front — never per frame.
-
-### 3. Draw with `stroke-dashoffset`
-
-A `requestAnimationFrame` loop maps elapsed time to each stroke's local progress:
-
-```js
-el.style.strokeDashoffset = String(1 - clamp01((t - delay) / duration));
-```
-
-Because the dash is proportional to the normalized path, advancing linearly gives a constant pen speed. Order comes from DOM position, `data-ink-delay`, or a stagger.
-
-### 4. Land with a spring
-
-Dots use a closed-form damped spring instead of a CSS transition, so the overshoot is physical and tunable:
-
-```js
-const w0 = Math.sqrt(stiffness);
-const z = damping / (2 * Math.sqrt(stiffness));
-const wd = w0 * Math.sqrt(1 - z * z);
-value = 1 - Math.exp(-z * w0 * t) * (Math.cos(wd * t) + ((z * w0) / wd) * Math.sin(wd * t));
-```
-
-### 5. Scrub with progress
-
-In scrub mode strokes are grouped by `data-ink-stage`. Stroke *i* of *n* in a stage starts at `stage × stageGap + i/n × groupSpread` and finishes within `window`. One progress value drives everything, which is why scrolling back is free.
+In scrub mode nothing is scheduled. `update(p)` writes `stroke-dashoffset` for every stroke from the same `p`, so there is no timeline state to rewind — a slider, a scroll listener or a video frame can all be the clock. `bind()` attaches a passive scroll/resize listener; `update(p)` leaves the clock to you.
 
 ## API
 
-### `playInk(root, options?)`
+`playInk(root, options?)`
 
-| Option | Default | Meaning |
-| --- | --- | --- |
-| `speed` | `620` | Pen speed in geometry units per second |
-| `stagger` | `80` | Extra delay between strokes without `data-ink-delay` |
-| `auto` | `true` | Play once when `root` enters the viewport |
-| `onDone` | — | Called after the last stroke settles |
+| Option    | Default | Meaning                                                    |
+| --------- | ------- | ---------------------------------------------------------- |
+| `speed`   | `620`   | Geometry units per second                                  |
+| `stagger` | `80`    | Extra delay in ms between strokes without `data-ink-delay` |
+| `auto`    | `true`  | Play once when `root` enters the viewport                  |
+| `onDone`  | —       | Called after the last stroke settles                       |
 
-Returns `{ play, duration, destroy }`.
+`scrubInk(root, options?)`
 
-### `scrubInk(root, options?)`
+| Option        | Default | Meaning                                       |
+| ------------- | ------- | --------------------------------------------- |
+| `section`     | `root`  | Element whose scroll position drives progress |
+| `stageGap`    | `0.17`  | Progress distance between stages              |
+| `groupSpread` | `0.1`   | Spread of strokes inside one stage            |
+| `window`      | `0.14`  | Progress each stroke takes to finish          |
+| `onUpdate`    | —       | Called with `0…1` on every update             |
 
-| Option | Default | Meaning |
-| --- | --- | --- |
-| `section` | `root` | Element whose scroll position drives progress |
-| `stageGap` | `0.17` | Progress distance between stages |
-| `groupSpread` | `0.1` | Progress spread inside one stage |
-| `window` | `0.14` | Progress each stroke takes to finish |
-| `onUpdate` | — | Called with progress `0…1` |
+Markup attributes
 
-Returns `{ update, bind }`. Call `bind()` for scroll binding, or drive `update(p)` yourself (video scrub, sliders, timelines).
+| Attribute        | Applies to                     | Meaning                                                                              |
+| ---------------- | ------------------------------ | ------------------------------------------------------------------------------------ |
+| `data-ink`       | `<svg>`                        | Root observed for one-shot playback                                                  |
+| `data-ink-draw`  | `<path>`, `<circle>`, `<line>` | Stroke drawn with a dash offset                                                      |
+| `data-ink-drop`  | any element                    | Lands with a damped spring (`playInk`) or fades in at a progress offset (`scrubInk`) |
+| `data-ink-delay` | draw / drop                    | Milliseconds before it starts in `playInk`                                           |
+| `data-ink-stage` | draw                           | Group index for `scrubInk` sequencing                                                |
+| `data-ink-start` | draw / drop                    | Explicit progress start, overriding stage grouping                                   |
+| `pathLength="1"` | draw                           | Required normalization                                                               |
 
-### Markup attributes
+`springAt(t, stiffness = 180, damping = 22)` is exported separately if you need the same curve elsewhere.
 
-| Attribute | Applies to | Meaning |
-| --- | --- | --- |
-| `data-ink` | `<svg>` | Root, observed for one-shot playback |
-| `data-ink-draw` | `<path>`, `<circle>` | Stroke to draw with a dash offset |
-| `data-ink-drop` | any element | Element that lands with a spring |
-| `data-ink-delay` | draw / drop | Milliseconds before it starts (`playInk`), or progress offset (`scrubInk`) |
-| `data-ink-stage` | draw | Group index for scrub sequencing |
-| `pathLength="1"` | draw | Required normalization |
+## How the timing is derived
 
-## Demo
+1. `pathLength="1"` makes the browser treat any geometry as one unit long, so `stroke-dasharray: 1` and a dash offset from `1` to `0` describe the same draw-in for a 6-unit tick and a 1,197-unit contour.
+2. `getTotalLength()` is called **once per stroke** at setup, never per frame. `duration = length / speed` (default 620 units/s, floored at 140 ms).
+3. Each frame maps time to local progress: `dashoffset = 1 - clamp01((t - delay) / duration)`. Because the dash is proportional to the normalized path, a linear advance is a constant pen speed.
+4. Drops use a closed-form damped spring rather than a CSS transition, so the overshoot is physical. SVG elements are pinned to their own `fill-box` centre before scaling, so a `<circle>` does not drift as it lands.
+
+For scrub, stroke _i_ of _n_ in stage _s_ starts at `s × stageGap + i/(n−1) × groupSpread` and finishes within `window`. One progress value drives every stroke.
+
+## Fallbacks
+
+- `prefers-reduced-motion: reduce` jumps straight to the finished drawing.
+- Without JavaScript the SVG is ordinary markup; a `noscript` rule that sets `stroke-dashoffset: 0` shows the final state.
+- No autoplay loop, no idle animation, no rAF while the drawing is off screen. `destroy()` removes the listener and the observer.
+
+## Run the demo
 
 ```bash
 cd ink-motion
@@ -137,120 +131,61 @@ python3 -m http.server 8901
 open http://127.0.0.1:8901/demo/
 ```
 
-Three sections: draw-once, scroll scrub, spring landing. The storyboard scene is 81 strokes in five stages.
+The demo is a workbench, not a showcase: live pen-speed / stagger / stage-gap controls, a draggable scrub timeline, and an A/B comparison you can stop at any frame.
 
-## Notes on the drawings
-
-The engine only handles timing. The hand-drawn quality comes from the paths:
-
-1. Draw with slight overshoot and uneven handles — no perfect circles, no mirrored symmetry.
-2. Vary density: a few confident long lines, a few short ticks, one offset wash underneath.
-3. Keep one accent color for tiny marks (a selected frame, a record light). It reads as a pencil annotation.
-
-## Browser support
-
-Any browser with `IntersectionObserver`, `requestAnimationFrame` and `getTotalLength()` — Chrome, Edge, Firefox, Safari. ES modules required.
-
-## Credits
-
-Ideas borrowed, implementation written from scratch: **Vivus** (one-by-one drawing, duration from path length), **CC-lineart** (hand-drawn path conventions), **line-art-animation** (spring motion), **runway-svg-animation** (outside-in ordering), **Morrph** (expo-out easing).
+![The ink-motion workbench](media/workbench.png)
 
 ## License
 
-MIT.
+**AGPL-3.0-only** — see [LICENSE](LICENSE). In short: you may use, modify and redistribute it, including in commercial work, but if you run a modified version as a network service you must offer that version's source to its users (section 13). If AGPL is not a fit for your project, contact the author about a separate licence.
+
+The timing ideas come from Vivus (duration from path length), line-art-animation (damped springs) and runway-svg-animation (sequencing). The implementation in this repository is written from scratch.
 
 ---
 
 # 中文
 
-## 这是什么
+一个给手绘 SVG 用的**时序引擎**：它不画图，只决定每一笔什么时候收笔。
 
-一套让手绘 SVG 线稿「自己画出来」的小引擎：恒定笔速、弹簧落位、跟随滚动逐笔描出。单文件、零依赖、无构建步骤。
+## 它解决什么
 
-![演示：手绘图自己描出，随后分镜工作室场景跟随滚动逐笔生长](media/demo.gif)
+常见的「描线动效」给每条路径同样的时长。于是 1,197 单位的外轮廓和 6 单位的短刻度同时结束——长线飞奔、短线慢爬，看起来是「揭示特效」，不是一支笔。上面那张动图左右用的是同一份 SVG、同样的笔顺和延迟，唯一区别是时长规则：左边固定 620 ms，右边 `时长 = 实测长度 / 620 单位每秒`。
 
-## 为什么写它
+## 接入
 
-在一次 AI 分镜产品的落地页重做里，我们希望图表看起来是「被画出来的」，而不是淡入上浮。查过现有做法后——**Vivus** 的逐笔绘制与按路径长度分配时长、**CC-lineart** 的手绘路径规范、**line-art-animation** 的弹簧与钟摆、**runway-svg-animation** 的由外向内顺序、**Morrph** 的 expo-out 缓动——只取思路，自己写了一个约 200 行的模块，不引入依赖。
-
-## 特性
-
-- **恒定笔速**：每条路径耗时 `长度 / 速度`，长线条不会和短刻度同时收笔。
-- **弹簧落位**：点与卡片用阻尼弹簧（stiffness 180、damping 22）落位，不是线性淡入。
-- **滚动逐笔**：scrub 模式下不自动播放，滚动进度直接驱动 `stroke-dashoffset`，下滑画、上滑退，无循环。
-- **诚实的降级**：`prefers-reduced-motion` 直接终态；无 JS 时可用 `noscript` 规则显示完整线稿。
-
-## 快速开始
-
-**1.** 把 `src/ink-motion.js` 拷进项目，它是零依赖的 ES module。
-
-**2.** 标记 SVG。`pathLength="1"` 是必须的——它把每条路径归一化，一套 dashoffset 值就能通用。
-
-```html
-<svg class="ink" viewBox="0 0 420 300" data-ink>
-  <path data-ink-draw data-ink-delay="0" pathLength="1" d="M40 44 C120 40 …" />
-  <path data-ink-draw data-ink-delay="240" pathLength="1" d="M178 118 L216 186" />
-  <circle data-ink-drop data-ink-delay="980" cx="128" cy="108" r="3.2" />
-</svg>
-```
-
-**3.** 两行 JS。
+拷贝 `src/ink-motion.js`，给每条路径加 `pathLength="1"` 与 `data-ink-draw`，然后：
 
 ```js
 import { playInk, scrubInk } from "./ink-motion.js";
 
-// 进入视口播一次
-playInk(document.querySelector(".ink"));
-
-// 或者：每一条线都跟着滚动进度走
-scrubInk(document.querySelector(".ink-scene"), {
-  section: document.querySelector("#stage-scrub"),
-}).bind();
+playInk(document.querySelector(".ink"), { speed: 620 }); // 进入视口画一次
+scrubInk(document.querySelector(".ink"), { section: el }).bind(); // 或跟着滚动逐笔
 ```
 
-## 原理
+线好不好看由路径和 CSS 决定（笔触分档、排线、起收笔过冲）；引擎只管时序。
 
-1. **归一化**：`pathLength="1"` 让浏览器把任意长度视为 1 个单位，`stroke-dasharray: 1` 配 `stroke-dashoffset` 从 1 到 0 就是描线。
-2. **只测一次**：`getTotalLength()` 仍返回真实长度，`时长 = 长度 / 620`，在初始化时测一次，不逐帧调用。
-3. **逐帧推进**：`stroke-dashoffset = 1 - clamp((t - delay) / duration)`。因为 dash 按归一化比例走，线性推进等于恒定笔速。
-4. **弹簧落位**：用阻尼弹簧的闭式解，过冲可调，不用 CSS transition 近似。
-5. **滚动逐笔**：按 `data-ink-stage` 分组，组内按序号错峰，一个进度值驱动全部，所以上滑回退是免费的。
+## 两种模式
 
-## API
+|              | `playInk`    | `scrubInk`                          |
+| ------------ | ------------ | ----------------------------------- |
+| 驱动         | 真实时间     | 一个 `0…1` 进度值                   |
+| 是否自动播放 | 进视口播一次 | 从不                                |
+| 往回退       | 不适用       | 上滑 / 往回拖即退笔，无需时间轴状态 |
 
-`playInk(root, { speed = 620, stagger = 80, auto = true, onDone })` → `{ play, duration, destroy }`
+![拖动进度条：线稿逐笔长出，再往回拖逐笔退去](media/scrub.gif)
 
-`scrubInk(root, { section, stageGap = 0.17, groupSpread = 0.1, window = 0.14, onUpdate })` → `{ update, bind }`
+`update(p)` 可以直接接滑块、滚动或视频帧；`bind()` 只是帮你挂了一对 passive 监听。
 
-标记属性：
+## 降级与边界
 
-| 属性 | 作用 |
-| --- | --- |
-| `data-ink` | 根节点，进入视口时触发一次性播放 |
-| `data-ink-draw` | 需要描出的路径 |
-| `data-ink-drop` | 需要弹簧落位的元素 |
-| `data-ink-delay` | 播放模式下的毫秒延迟；scrub 模式下的进度偏移 |
-| `data-ink-stage` | scrub 分组序号 |
-| `pathLength="1"` | 归一化，必须 |
+`prefers-reduced-motion` 直接终态；无 JS 时是普通 SVG 加一条 `noscript` 规则；没有循环、没有闲置 rAF，`destroy()` 会清理监听与 observer。
 
-## 运行演示
+## 演示
 
-```bash
-cd ink-motion
-python3 -m http.server 8901
-open http://127.0.0.1:8901/demo/
-```
+`python3 -m http.server 8901` 后打开 `/demo/`。那是可调笔速、stagger、阶段间隔和进度的实验台，A/B 对比能停在任意一帧，不是三屏营销页。
 
-三段：进入视口描出、跟随滚动逐笔、弹簧落位。演示里的分镜工作室是 81 条笔迹、五个阶段。
-
-## 关于「手绘感」
-
-引擎只负责时序，手感来自路径本身：
-
-1. 起收笔留一点过冲，句柄不等长——不要正圆、不要镜像对称。
-2. 疏密要有差：几条长线定骨架，几笔短线补细节，底下垫一块偏移的极淡水彩。
-3. 只留一种点缀色（被选中的格子、录制灯），它读起来像铅笔批注，而不是装饰。
+![实验台](media/workbench.png)
 
 ## 许可
 
-MIT。
+**AGPL-3.0-only**，见 [LICENSE](LICENSE)。可商用、可修改、可分发；但把修改后的版本作为网络服务提供时，需要按第 13 条向使用者提供该版本源码。若 AGPL 不适合你的项目，可联系作者另议授权。

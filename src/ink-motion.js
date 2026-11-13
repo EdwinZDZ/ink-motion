@@ -25,7 +25,11 @@ export const springAt = (t, stiffness = 180, damping = 22) => {
   const z = damping / (2 * Math.sqrt(stiffness));
   if (z < 1) {
     const wd = w0 * Math.sqrt(1 - z * z);
-    return 1 - Math.exp(-z * w0 * t) * (Math.cos(wd * t) + ((z * w0) / wd) * Math.sin(wd * t));
+    return (
+      1 -
+      Math.exp(-z * w0 * t) *
+        (Math.cos(wd * t) + ((z * w0) / wd) * Math.sin(wd * t))
+    );
   }
   return 1 - Math.exp(-w0 * t) * (1 + w0 * t);
 };
@@ -45,7 +49,8 @@ const measure = (el, fallback = 400) => {
 };
 
 const prefersReduced = () =>
-  window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.matchMedia &&
+  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /**
  * Draw once, in DOM order, at a constant pen speed.
@@ -61,17 +66,34 @@ export function playInk(root, options = {}) {
     normalize(el);
     const len = measure(el);
     const dur = Math.max(140, (len / speed) * 1000);
-    const delay = el.dataset.inkDelay !== undefined ? Number(el.dataset.inkDelay) : cursor;
+    const delay =
+      el.dataset.inkDelay !== undefined ? Number(el.dataset.inkDelay) : cursor;
     cursor = Math.max(cursor, delay) + stagger;
     return { el, dur, delay };
   });
 
   const dropPlan = drops.map((el) => {
     el.style.opacity = "0";
-    return { el, delay: el.dataset.inkDelay !== undefined ? Number(el.dataset.inkDelay) : cursor };
+    /* SVG geometry scales around (0,0) by default — pin it to the shape's own
+       centre so a spring landing on a <circle> or <text> does not drift. */
+    if (typeof SVGElement !== "undefined" && el instanceof SVGElement) {
+      el.style.transformBox = "fill-box";
+      el.style.transformOrigin = "center";
+    }
+    return {
+      el,
+      delay:
+        el.dataset.inkDelay !== undefined
+          ? Number(el.dataset.inkDelay)
+          : cursor,
+    };
   });
 
-  const total = Math.max(600, ...plan.map((p) => p.delay + p.dur), ...dropPlan.map((d) => d.delay + 700));
+  const total = Math.max(
+    600,
+    ...plan.map((p) => p.delay + p.dur),
+    ...dropPlan.map((d) => d.delay + 700),
+  );
 
   let raf = 0;
   let startedAt = 0;
@@ -124,7 +146,7 @@ export function playInk(root, options = {}) {
           }
         });
       },
-      { threshold: 0.25 }
+      { threshold: 0.25 },
     );
     io.observe(root);
   }
@@ -148,7 +170,13 @@ export function playInk(root, options = {}) {
  * @returns {{ update: (p: number) => void, bind: () => () => void }}
  */
 export function scrubInk(root, options = {}) {
-  const { section = root, stageGap = 0.17, groupSpread = 0.1, window: win = 0.14, onUpdate } = options;
+  const {
+    section = root,
+    stageGap = 0.17,
+    groupSpread = 0.1,
+    window: win = 0.14,
+    onUpdate,
+  } = options;
   const draws = [...root.querySelectorAll("[data-ink-draw]")];
   const dots = [...root.querySelectorAll("[data-ink-drop]")];
 
@@ -165,16 +193,22 @@ export function scrubInk(root, options = {}) {
       normalize(el);
       plan.push({
         el,
-        start: el.dataset.inkStart !== undefined
-          ? Number(el.dataset.inkStart)
-          : stage * stageGap + (els.length > 1 ? (i / (els.length - 1)) * groupSpread : 0),
+        start:
+          el.dataset.inkStart !== undefined
+            ? Number(el.dataset.inkStart)
+            : stage * stageGap +
+              (els.length > 1 ? (i / (els.length - 1)) * groupSpread : 0),
       });
     });
   });
 
   const dotPlan = dots.map((el) => {
     el.style.opacity = "0";
-    return { el, start: el.dataset.inkStart !== undefined ? Number(el.dataset.inkStart) : 0.6 };
+    return {
+      el,
+      start:
+        el.dataset.inkStart !== undefined ? Number(el.dataset.inkStart) : 0.6,
+    };
   });
 
   const update = (p) => {
