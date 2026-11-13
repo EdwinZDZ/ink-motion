@@ -4,17 +4,27 @@ const $ = (selector) => document.querySelector(selector);
 const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
 const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* One drawing, cloned into the workbench and both halves of the comparison. */
-const tpl = $("#artTpl");
-const mount = (host) => {
+/* Four drawings live in templates. Each clone gets a unique filter id. */
+let uid = 0;
+const mount = (host, name) => {
+  const tpl = document.getElementById(`artTpl-${name}`);
   const svg = tpl.content.firstElementChild.cloneNode(true);
+  const filter = svg.querySelector("filter");
+  if (filter) {
+    const next = `${filter.id}-${++uid}`;
+    svg
+      .querySelectorAll("[filter]")
+      .forEach((el) => el.setAttribute("filter", `url(#${next})`));
+    filter.id = next;
+  }
   host.appendChild(svg);
   return svg;
 };
 
-const mainArt = mount($("#canvasFrame"));
-const leftArt = mount($("#compareA"));
-const rightArt = mount($("#compareB"));
+const leftArt = mount($("#compareA"), "archive");
+const rightArt = mount($("#compareB"), "archive");
+let currentArt = "archive";
+let mainArt = mount($("#canvasFrame"), currentArt);
 
 /* ---------- workbench ---------- */
 
@@ -133,17 +143,46 @@ ui.progress.addEventListener("input", () => {
 ui.replay.addEventListener("click", replay);
 
 /* Geometry readout — the whole point of constant pen speed. */
-const lengths = [...mainArt.querySelectorAll("[data-ink-draw]")].map((el) => {
-  try {
-    return el.getTotalLength();
-  } catch {
-    return 0;
-  }
-});
-$("#strokeCount").textContent = String(lengths.length);
-$("#longest").textContent = `${Math.round(Math.max(...lengths))} u`;
-$("#shortest").textContent = `${Math.round(Math.min(...lengths))} u`;
+const updateReadout = () => {
+  const draws = [...mainArt.querySelectorAll("[data-ink-draw]")];
+  const lengths = draws.map((el) => {
+    try {
+      return el.getTotalLength();
+    } catch {
+      return 0;
+    }
+  });
+  const stages = new Set(draws.map((el) => el.dataset.inkStage || "0")).size;
+  $("#strokeCount").textContent = String(lengths.length);
+  $("#longest").textContent = `${Math.round(Math.max(...lengths))} u`;
+  $("#shortest").textContent = `${Math.round(Math.min(...lengths))} u`;
+  $("#artMeta").textContent = `${lengths.length} strokes · ${stages} stages`;
+  $("#canvasSpec").textContent =
+    `${lengths.length} strokes · ${stages} stages · hand-drawn paths`;
+};
 
+const setArt = (name) => {
+  if (name === currentArt) return;
+  if (player) player.destroy();
+  currentArt = name;
+  $("#canvasFrame").replaceChildren();
+  mainArt = mount($("#canvasFrame"), name);
+  document
+    .querySelectorAll("[data-art]")
+    .forEach((btn) =>
+      btn.setAttribute("aria-pressed", String(btn.dataset.art === name)),
+    );
+  updateReadout();
+  rebuild();
+};
+
+document
+  .querySelectorAll("[data-art]")
+  .forEach((btn) =>
+    btn.addEventListener("click", () => setArt(btn.dataset.art)),
+  );
+
+updateReadout();
 rebuild();
 
 /* ---------- comparison: equal duration vs length / speed ---------- */
@@ -253,3 +292,30 @@ compareObserver.observe(compareSection);
 /* First paint: the finished drawing, with the timeline at 100%. */
 ensureCompare();
 renderCompare(compareTotal);
+
+/* ---------- examples: one player per drawing ---------- */
+const gallery = [...document.querySelectorAll(".example")].map((row) => {
+  const svg = mount(row.querySelector(".example__canvas"), row.dataset.example);
+  const p = playInk(svg, { speed: 700, stagger: 18, auto: false });
+  row
+    .querySelector(".example__replay")
+    .addEventListener("click", () => p.play());
+  if (reduced) p.play();
+  return { row, p, seen: reduced };
+});
+
+const galleryObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      const item = gallery.find((g) => g.row === entry.target);
+      if (item && !item.seen) {
+        item.seen = true;
+        item.p.play();
+        galleryObserver.unobserve(entry.target);
+      }
+    });
+  },
+  { threshold: 0.3 },
+);
+gallery.forEach(({ row }) => galleryObserver.observe(row));

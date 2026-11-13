@@ -1,6 +1,6 @@
 {
   "name": "ink-motion",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A timing engine for hand-drawn SVG: constant pen speed, spring landing, scroll scrub.",
   "type": "module",
   "main": "src/ink-motion.js",

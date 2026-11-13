@@ -59,6 +59,39 @@ Styling is yours — stroke weight, hatching and uneven handles belong to the pa
 }
 ```
 
+## Three ways to wire it up
+
+Those two calls are the common path. The engine only maps a number to dash offsets, so the clock can come from anywhere.
+
+**1 · A scroll-driven section.** Bind progress to the drawing the reader actually sees, not to a container that starts off-screen:
+
+```js
+const art = document.querySelector("#scene .ink");
+scrubInk(art, {
+  section: art,
+  stageGap: 0.22,
+  onUpdate: (p) => (counter.textContent = `${Math.round(p * 100)}%`),
+}).bind();
+```
+
+**2 · Chain something after the last stroke settles:**
+
+```js
+playInk(document.querySelector(".hero-ink"), {
+  speed: 700,
+  stagger: 40,
+  onDone: () =>
+    document.querySelector(".hero-caption").classList.add("is-visible"),
+});
+```
+
+**3 · Bring your own clock** — a range input, a video frame, or a scroll library:
+
+```js
+const s = scrubInk(document.querySelector(".ink"));
+timeline.on("update", ({ progress }) => s.update(progress));
+```
+
 ## Two modes
 
 |                  | `playInk`                     | `scrubInk`                               |
@@ -72,6 +105,21 @@ Styling is yours — stroke weight, hatching and uneven handles belong to the pa
 ![Drag the progress slider: strokes appear, then retreat as it is dragged back](media/scrub.gif)
 
 In scrub mode nothing is scheduled. `update(p)` writes `stroke-dashoffset` for every stroke from the same `p`, so there is no timeline state to rewind — a slider, a scroll listener or a video frame can all be the clock. `bind()` attaches a passive scroll/resize listener; `update(p)` leaves the clock to you.
+
+## Four examples
+
+![Four drawings, drawn stroke by stroke from the same scrub timeline](media/examples.gif)
+
+The workbench switches between four drawings; the examples plate plays each one independently. Same module, same attributes — four subjects and four different timing profiles.
+
+| Drawing                        | Strokes | Longest / shortest | What it exercises                                |
+| ------------------------------ | ------- | ------------------ | ------------------------------------------------ |
+| `archive` — archival notebook  | 61      | 1197 u / 6 u       | widest length spread; used in the A/B comparison |
+| `camera` — tripod camera       | 70      | 787 u / 12 u       | dense short details after long contours          |
+| `route` — folded route map     | 48      | 1487 u / 11 u      | one continuous long path with stations           |
+| `glyphs` — three chapter icons | 27      | 344 u / 15 u       | a small drawing with spring-landed dots          |
+
+![The examples plate in the demo](media/examples.png)
 
 ## API
 
@@ -131,7 +179,7 @@ python3 -m http.server 8901
 open http://127.0.0.1:8901/demo/
 ```
 
-The demo is a workbench, not a showcase: live pen-speed / stagger / stage-gap controls, a draggable scrub timeline, and an A/B comparison you can stop at any frame.
+The demo is a workbench, not a showcase: live pen-speed / stagger / stage-gap controls, four switchable drawings, a draggable scrub timeline, an A/B comparison you can stop at any frame, and an examples plate that plays each drawing on its own.
 
 ![The ink-motion workbench](media/workbench.png)
 
@@ -164,6 +212,8 @@ scrubInk(document.querySelector(".ink"), { section: el }).bind(); // 或跟着�
 
 线好不好看由路径和 CSS 决定（笔触分档、排线、起收笔过冲）；引擎只管时序。
 
+时钟可以换：段落滚动要把 `section` 绑到**被看见的那幅图**（绑容器会让它在进视口前就播完）、`onDone` 在收笔后触发下一段、`update(p)` 可接滑块或自己的滚动库。三段完整代码见英文部分。
+
 ## 两种模式
 
 |              | `playInk`    | `scrubInk`                          |
@@ -176,13 +226,28 @@ scrubInk(document.querySelector(".ink"), { section: el }).bind(); // 或跟着�
 
 `update(p)` 可以直接接滑块、滚动或视频帧；`bind()` 只是帮你挂了一对 passive 监听。
 
+## 四个例子
+
+| 图形             | 笔数 | 最长 / 最短 | 考察点                     |
+| ---------------- | ---- | ----------- | -------------------------- |
+| 档案册           | 61   | 1197 / 6 u  | 长度差最大，A/B 对比用这幅 |
+| 三脚架摄影机     | 70   | 787 / 12 u  | 长轮廓之后密集短细节       |
+| 折页路线图       | 48   | 1487 / 11 u | 一条贯穿全图的长路径       |
+| 章节图标（三枚） | 27   | 344 / 15 u  | 小尺寸 + 弹簧落位          |
+
+![四幅图依次逐笔描出](media/examples.gif)
+
+实验台可以切换四幅；图版区四行各自独立播放，都能单独重播。
+
+![例子图版](media/examples.png)
+
 ## 降级与边界
 
 `prefers-reduced-motion` 直接终态；无 JS 时是普通 SVG 加一条 `noscript` 规则；没有循环、没有闲置 rAF，`destroy()` 会清理监听与 observer。
 
 ## 演示
 
-`python3 -m http.server 8901` 后打开 `/demo/`。那是可调笔速、stagger、阶段间隔和进度的实验台，A/B 对比能停在任意一帧，不是三屏营销页。
+`python3 -m http.server 8901` 后打开 `/demo/`。那是可调笔速、stagger、阶段间隔和进度的实验台，四幅图可切换，A/B 对比能停在任意一帧，另有四行例子图版，不是三屏营销页。
 
 ![实验台](media/workbench.png)
 

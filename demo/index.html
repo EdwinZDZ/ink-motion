@@ -54,6 +54,29 @@
           </p>
 
           <div class="control">
+            <span class="label">Drawing</span>
+            <div
+              class="drawing-picker"
+              role="group"
+              aria-label="Example drawing"
+            >
+              <button type="button" data-art="archive" aria-pressed="true">
+                archive
+              </button>
+              <button type="button" data-art="camera" aria-pressed="false">
+                camera
+              </button>
+              <button type="button" data-art="route" aria-pressed="false">
+                route
+              </button>
+              <button type="button" data-art="glyphs" aria-pressed="false">
+                glyphs
+              </button>
+            </div>
+            <p class="control__hint" id="artMeta">61 strokes · 4 stages</p>
+          </div>
+
+          <div class="control">
             <span class="label">Mode</span>
             <div class="segmented" role="group" aria-label="Playback mode">
               <button type="button" data-mode="play" aria-pressed="true">
@@ -164,7 +187,9 @@
           </div>
           <div class="canvas__frame" id="canvasFrame"></div>
           <div class="canvas__meta">
-            <span>61 strokes · 4 stages · hand-drawn paths</span>
+            <span id="canvasSpec"
+              >61 strokes · 4 stages · hand-drawn paths</span
+            >
             <span id="canvasMeta">play once · 620 u/s</span>
           </div>
         </div>
@@ -219,14 +244,109 @@
           <code>duration = 620 ms</code> versus
           <code>duration = length / speed</code>. Equal durations make long
           contours sprint and short ticks crawl; length-derived durations read
-          as one pen moving across the page.
+          as one pen moving across the page. The comparison uses the archive
+          drawing; the workbench switches all four.
         </p>
+      </section>
+
+      <section class="gallery" aria-labelledby="galleryTitle">
+        <div class="section-head">
+          <h2 id="galleryTitle">03 / Examples</h2>
+          <p>四幅不同题材 · same engine, four drawings</p>
+        </div>
+
+        <div class="gallery__list">
+          <article class="example" data-example="archive">
+            <div class="example__info">
+              <p class="example__idx">01 / SCRUB</p>
+              <h3>Archive notebook</h3>
+              <p class="example__desc">
+                An editorial object: one closed contour, four stroke weights,
+                hatching for volume. The default workbench drawing.
+              </p>
+              <dl>
+                <dt>strokes</dt>
+                <dd>61</dd>
+                <dt>call</dt>
+                <dd>scrubInk</dd>
+                <dt>stages</dt>
+                <dd>4</dd>
+              </dl>
+              <button class="example__replay" type="button">Replay</button>
+            </div>
+            <div class="example__canvas"></div>
+          </article>
+
+          <article class="example" data-example="camera">
+            <div class="example__info">
+              <p class="example__idx">02 / PLAY ONCE</p>
+              <h3>Tripod camera</h3>
+              <p class="example__desc">
+                A product diagram: two film reels, a lens with three rings, a
+                cable and a tripod. Long contours sit beside 6-unit ticks.
+              </p>
+              <dl>
+                <dt>strokes</dt>
+                <dd>70</dd>
+                <dt>call</dt>
+                <dd>playInk</dd>
+                <dt>stages</dt>
+                <dd>4</dd>
+              </dl>
+              <button class="example__replay" type="button">Replay</button>
+            </div>
+            <div class="example__canvas"></div>
+          </article>
+
+          <article class="example" data-example="route">
+            <div class="example__info">
+              <p class="example__idx">03 / LENGTH SPREAD</p>
+              <h3>Folded route map</h3>
+              <p class="example__desc">
+                One continuous winding path across a folded sheet, with stations
+                and a returning branch. A long line sharing a clock with short
+                ticks.
+              </p>
+              <dl>
+                <dt>strokes</dt>
+                <dd>48</dd>
+                <dt>call</dt>
+                <dd>scrubInk</dd>
+                <dt>stages</dt>
+                <dd>3</dd>
+              </dl>
+              <button class="example__replay" type="button">Replay</button>
+            </div>
+            <div class="example__canvas"></div>
+          </article>
+
+          <article class="example" data-example="glyphs">
+            <div class="example__info">
+              <p class="example__idx">04 / SPRING LANDING</p>
+              <h3>Chapter glyphs</h3>
+              <p class="example__desc">
+                Three small icons — storyboard, hourglass, Q&amp;A. Dots and
+                annotations land with the damped spring; one clay accent each.
+              </p>
+              <dl>
+                <dt>strokes</dt>
+                <dd>27</dd>
+                <dt>call</dt>
+                <dd>playInk</dd>
+                <dt>stages</dt>
+                <dd>3</dd>
+              </dl>
+              <button class="example__replay" type="button">Replay</button>
+            </div>
+            <div class="example__canvas"></div>
+          </article>
+        </div>
       </section>
 
       <section class="usage" aria-labelledby="usageTitle">
         <div>
           <div class="section-head">
-            <h2 id="usageTitle">03 / Use</h2>
+            <h2 id="usageTitle">04 / Use</h2>
             <p>两行接入 · no build step</p>
           </div>
           <pre><code>&lt;<span class="k">svg</span> class="ink" viewBox="70 125 470 415" data-ink&gt;
@@ -268,7 +388,7 @@ scrubInk(document.querySelector(".ink"), {
       <span>src/ink-motion.js · demo/index.html</span>
     </footer>
 
-    <template id="artTpl">
+    <template id="artTpl-archive">
       <svg
         class="ink ink-art"
         viewBox="70 125 470 415"
@@ -867,6 +987,1523 @@ scrubInk(document.querySelector(".ink"), {
             r="1.6"
             data-ink-delay="1320"
           />
+        </g>
+      </svg>
+    </template>
+    <template id="artTpl-camera">
+      <svg
+        class="ink ink-art art--camera"
+        viewBox="0 0 520 460"
+        data-ink
+        role="img"
+        aria-label="A tripod film camera with two reels, drawn in ink"
+      >
+        <defs>
+          <filter id="wobble-camera" x="-4%" y="-4%" width="108%" height="108%">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.028"
+              numOctaves="2"
+              seed="7"
+              result="noise"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="noise"
+              scale="1.8"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </defs>
+        <g filter="url(#wobble-camera)">
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="0"
+            pathLength="1"
+            d="M126 152 C190 147 320 149 386 152 C394 152 398 157 398 164 L396 266 C396 273 391 277 384 277 L130 275 C122 275 118 270 118 263 L120 160 C120 155 122 152 126 152"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="24"
+            pathLength="1"
+            d="M120 158 C112 151 108 149 102 147"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="48"
+            pathLength="1"
+            d="M386 152 C392 146 398 145 404 148"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="72"
+            pathLength="1"
+            d="M134 166 C134 210 132 240 134 266"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="96"
+            pathLength="1"
+            d="M376 160 C374 200 376 240 374 268"
+          />
+          <path
+            class="ghost"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="120"
+            pathLength="1"
+            d="M138 168 C200 164 300 166 368 167"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="144"
+            pathLength="1"
+            d="M330 150 L330 128 C330 124 333 121 337 121 L370 121 C374 121 376 124 376 128 L376 150"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="168"
+            pathLength="1"
+            d="M340 121 C340 114 342 111 346 111 L362 111"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="192"
+            pathLength="1"
+            d="M160 132 C176 128 196 128 212 130"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="216"
+            pathLength="1"
+            d="M270 130 C286 127 308 128 322 129"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="240"
+            pathLength="1"
+            d="M166 106 C166 84 182 70 202 70 C222 70 238 84 238 106 C238 128 222 142 202 142 C182 142 166 128 166 106 Z"
+          />
+          <circle
+            class="contour"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="264"
+            pathLength="1"
+            cx="202"
+            cy="106"
+            r="4.5"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="288"
+            pathLength="1"
+            d="M180 92 C192 80 216 82 226 96"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="312"
+            pathLength="1"
+            d="M226 114 C214 128 190 128 178 114"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="336"
+            pathLength="1"
+            d="M200 101 C200 92 206 86 214 84"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="360"
+            pathLength="1"
+            d="M204 111 C204 120 198 126 190 127"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="384"
+            pathLength="1"
+            d="M216 136 l-14 10"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="408"
+            pathLength="1"
+            d="M216 127 l-14 10"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="432"
+            pathLength="1"
+            d="M216 118 l-14 10"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="456"
+            pathLength="1"
+            d="M264 104 C264 82 280 68 300 68 C320 68 336 82 336 104 C336 126 320 140 300 140 C280 140 264 126 264 104 Z"
+          />
+          <circle
+            class="contour"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="480"
+            pathLength="1"
+            cx="300"
+            cy="104"
+            r="4.5"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="504"
+            pathLength="1"
+            d="M278 90 C290 78 314 80 324 94"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="528"
+            pathLength="1"
+            d="M324 112 C312 126 288 126 276 112"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="552"
+            pathLength="1"
+            d="M298 99 C298 90 304 84 312 82"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="576"
+            pathLength="1"
+            d="M302 109 C302 118 296 124 288 125"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="600"
+            pathLength="1"
+            d="M314 134 l-14 10"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="624"
+            pathLength="1"
+            d="M314 125 l-14 10"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="648"
+            pathLength="1"
+            d="M314 116 l-14 10"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="190"
+            pathLength="1"
+            d="M398 186 C420 183 440 186 454 189 C460 190 463 195 463 202 L462 234 C462 241 458 245 451 245 L408 244 C402 244 398 240 398 234 Z"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="214"
+            pathLength="1"
+            d="M454 189 C470 186 486 196 486 216 C486 236 470 246 454 243"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="238"
+            pathLength="1"
+            d="M460 199 C472 197 480 204 480 216 C480 228 472 235 460 233"
+          />
+          <circle
+            class="contour"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="262"
+            pathLength="1"
+            cx="470"
+            cy="216"
+            r="6"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="286"
+            pathLength="1"
+            d="M408 196 C424 193 440 195 452 196"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="310"
+            pathLength="1"
+            d="M409 238 C424 235 440 237 452 237"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="334"
+            pathLength="1"
+            d="M418 186 L418 176 L436 176 L436 186"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="358"
+            pathLength="1"
+            d="M152 190 C180 187 224 189 250 188"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="382"
+            pathLength="1"
+            d="M152 204 C172 201 198 203 218 202"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="406"
+            pathLength="1"
+            d="M152 218 C166 215 182 217 196 216"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="430"
+            pathLength="1"
+            d="M262 196 C286 193 316 195 340 194"
+          />
+          <circle
+            class="contour"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="454"
+            pathLength="1"
+            cx="352"
+            cy="214"
+            r="13"
+          />
+          <circle
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="478"
+            pathLength="1"
+            cx="352"
+            cy="214"
+            r="6"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="502"
+            pathLength="1"
+            d="M330 248 C348 244 368 246 384 245"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="380"
+            pathLength="1"
+            d="M238 277 C246 272 270 272 278 277"
+          />
+          <circle
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="404"
+            pathLength="1"
+            cx="258"
+            cy="282"
+            r="7"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="428"
+            pathLength="1"
+            d="M258 289 C254 326 244 372 230 408"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="452"
+            pathLength="1"
+            d="M258 289 C262 326 272 372 286 408"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="476"
+            pathLength="1"
+            d="M258 289 C258 326 258 372 258 406"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="500"
+            pathLength="1"
+            d="M230 408 C226 412 224 414 220 414"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="524"
+            pathLength="1"
+            d="M286 408 C290 412 292 414 296 414"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="548"
+            pathLength="1"
+            d="M236 350 C250 346 266 347 280 350"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="572"
+            pathLength="1"
+            d="M118 250 C100 268 94 296 98 324 C101 348 110 368 126 378"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="596"
+            pathLength="1"
+            d="M126 378 C134 382 140 380 144 376"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="620"
+            pathLength="1"
+            d="M56 414 C170 410 340 416 470 412"
+          />
+          <path
+            class="ghost"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="644"
+            pathLength="1"
+            d="M64 420 C168 417 320 422 452 419"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="668"
+            pathLength="1"
+            d="M150 268 l-18 12"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="692"
+            pathLength="1"
+            d="M150 259 l-18 12"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="716"
+            pathLength="1"
+            d="M150 250 l-18 12"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="740"
+            pathLength="1"
+            d="M150 241 l-18 12"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="764"
+            pathLength="1"
+            d="M150 232 l-18 12"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="788"
+            pathLength="1"
+            d="M372 268 l-16 12"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="812"
+            pathLength="1"
+            d="M372 259 l-16 12"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="836"
+            pathLength="1"
+            d="M372 250 l-16 12"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="860"
+            pathLength="1"
+            d="M372 241 l-16 12"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="884"
+            pathLength="1"
+            d="M206 404 l22 4"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="908"
+            pathLength="1"
+            d="M200 404 l22 4"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="932"
+            pathLength="1"
+            d="M194 404 l22 4"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="956"
+            pathLength="1"
+            d="M188 404 l22 4"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="3"
+            data-ink-delay="570"
+            pathLength="1"
+            d="M384 166 C388 162 392 162 395 165"
+          />
+          <path
+            class="ghost"
+            data-ink-draw
+            data-ink-stage="3"
+            data-ink-delay="594"
+            pathLength="1"
+            d="M108 172 C104 178 104 184 107 190"
+          />
+          <path
+            class="ghost"
+            data-ink-draw
+            data-ink-stage="3"
+            data-ink-delay="618"
+            pathLength="1"
+            d="M396 252 C392 258 390 264 391 270"
+          />
+          <circle
+            class="sketch-clay"
+            data-ink-drop
+            data-ink-start="0.58"
+            data-ink-delay="870"
+            cx="390"
+            cy="164"
+            r="3.2"
+          />
+          <circle
+            class="sketch-clay"
+            data-ink-drop
+            data-ink-start="0.66"
+            data-ink-delay="990"
+            cx="470"
+            cy="216"
+            r="2.4"
+          />
+          <circle
+            class="sketch-clay"
+            data-ink-drop
+            data-ink-start="0.62"
+            data-ink-delay="930"
+            cx="202"
+            cy="106"
+            r="2.6"
+          />
+          <circle
+            class="sketch-dot"
+            data-ink-drop
+            data-ink-start="0.72"
+            data-ink-delay="1080"
+            cx="258"
+            cy="282"
+            r="2.2"
+          />
+          <circle
+            class="sketch-dot"
+            data-ink-drop
+            data-ink-start="0.8"
+            data-ink-delay="1200"
+            cx="126"
+            cy="378"
+            r="1.8"
+          />
+          <text
+            class="note"
+            data-ink-drop
+            data-ink-start="0.6"
+            data-ink-delay="900"
+            x="154"
+            y="438"
+          >
+            CAM / 01 · 24 FPS
+          </text>
+          <text
+            class="note"
+            data-ink-drop
+            data-ink-start="0.68"
+            data-ink-delay="1020"
+            x="330"
+            y="438"
+          >
+            SC.04 B
+          </text>
+        </g>
+      </svg>
+    </template>
+    <template id="artTpl-route">
+      <svg
+        class="ink ink-art art--route"
+        viewBox="0 0 520 420"
+        data-ink
+        role="img"
+        aria-label="A folded route map with a winding hand-drawn path"
+      >
+        <defs>
+          <filter id="wobble-route" x="-4%" y="-4%" width="108%" height="108%">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.028"
+              numOctaves="2"
+              seed="7"
+              result="noise"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="noise"
+              scale="1.8"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </defs>
+        <g filter="url(#wobble-route)">
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="0"
+            pathLength="1"
+            d="M42 62 C160 56 340 58 478 62 C484 62 487 66 487 72 L484 356 C484 362 480 365 474 365 L46 362 C40 362 36 358 36 352 L38 68 C38 64 40 62 42 62"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="24"
+            pathLength="1"
+            d="M40 62 C34 58 30 57 26 58"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="48"
+            pathLength="1"
+            d="M478 62 C484 58 490 58 494 61"
+          />
+          <path
+            class="ghost"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="72"
+            pathLength="1"
+            d="M186 60 C182 150 190 270 186 363"
+          />
+          <path
+            class="ghost"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="96"
+            pathLength="1"
+            d="M336 61 C332 150 340 270 336 363"
+          />
+          <path
+            class="ghost"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="120"
+            pathLength="1"
+            d="M46 78 C160 73 340 76 474 78"
+          />
+          <path
+            class="ghost"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="144"
+            pathLength="1"
+            d="M48 348 C160 345 340 349 472 347"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="190"
+            pathLength="1"
+            d="M72 316 C104 300 116 268 148 258 C182 248 202 262 226 240 C248 220 242 194 268 182 C296 169 312 186 338 166 C364 146 366 122 396 120 C420 118 438 112 452 102"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="214"
+            pathLength="1"
+            d="M268 182 C262 156 248 142 224 138 C204 135 194 122 196 104"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="238"
+            pathLength="1"
+            d="M196 104 C192 98 192 92 196 88"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="262"
+            pathLength="1"
+            d="M452 102 L436 100"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="286"
+            pathLength="1"
+            d="M452 102 L444 116"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="310"
+            pathLength="1"
+            d="M72 316 C64 322 60 328 58 336"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="334"
+            pathLength="1"
+            d="M58 336 C64 340 70 340 76 336"
+          />
+          <circle
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="380"
+            pathLength="1"
+            cx="148"
+            cy="258"
+            r="6"
+          />
+          <circle
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="404"
+            pathLength="1"
+            cx="148"
+            cy="258"
+            r="2"
+          />
+          <circle
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="428"
+            pathLength="1"
+            cx="226"
+            cy="240"
+            r="6"
+          />
+          <circle
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="452"
+            pathLength="1"
+            cx="226"
+            cy="240"
+            r="2"
+          />
+          <circle
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="476"
+            pathLength="1"
+            cx="338"
+            cy="166"
+            r="6"
+          />
+          <circle
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="500"
+            pathLength="1"
+            cx="338"
+            cy="166"
+            r="2"
+          />
+          <circle
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="524"
+            pathLength="1"
+            cx="396"
+            cy="120"
+            r="6"
+          />
+          <circle
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="548"
+            pathLength="1"
+            cx="396"
+            cy="120"
+            r="2"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="572"
+            pathLength="1"
+            d="M148 258 L148 244"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="596"
+            pathLength="1"
+            d="M226 240 L226 226"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="620"
+            pathLength="1"
+            d="M338 166 L338 152"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="644"
+            pathLength="1"
+            d="M396 120 L396 106"
+          />
+          <path
+            class="ghost"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="668"
+            pathLength="1"
+            d="M120 278 C130 274 140 276 148 278"
+          />
+          <path
+            class="ghost"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="692"
+            pathLength="1"
+            d="M356 142 C366 136 376 134 384 134"
+          />
+          <path
+            class="ghost"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="716"
+            pathLength="1"
+            d="M240 206 C254 200 268 200 280 202"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="740"
+            pathLength="1"
+            d="M416 296 C428 292 442 294 452 298"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="764"
+            pathLength="1"
+            d="M434 280 L434 312"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="788"
+            pathLength="1"
+            d="M420 304 L448 304"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="812"
+            pathLength="1"
+            d="M62 128 C82 120 104 122 120 130"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="836"
+            pathLength="1"
+            d="M62 140 C78 135 94 136 108 140"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="860"
+            pathLength="1"
+            d="M60 152 C70 149 80 150 88 152"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="884"
+            pathLength="1"
+            d="M430 344 l-20 14"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="908"
+            pathLength="1"
+            d="M430 334 l-20 14"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="932"
+            pathLength="1"
+            d="M430 324 l-20 14"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="956"
+            pathLength="1"
+            d="M430 314 l-20 14"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="980"
+            pathLength="1"
+            d="M430 304 l-20 14"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="1004"
+            pathLength="1"
+            d="M64 344 l-18 12"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="1028"
+            pathLength="1"
+            d="M64 335 l-18 12"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="1052"
+            pathLength="1"
+            d="M64 326 l-18 12"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="1076"
+            pathLength="1"
+            d="M64 317 l-18 12"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="1100"
+            pathLength="1"
+            d="M210 330 l20 4"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="1124"
+            pathLength="1"
+            d="M202 330 l20 4"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="1148"
+            pathLength="1"
+            d="M194 330 l20 4"
+          />
+          <path
+            class="hatch"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="1172"
+            pathLength="1"
+            d="M186 330 l20 4"
+          />
+          <text
+            class="note"
+            data-ink-drop
+            data-ink-start="0.6"
+            data-ink-delay="900"
+            x="66"
+            y="300"
+          >
+            01 / START
+          </text>
+          <text
+            class="note"
+            data-ink-drop
+            data-ink-start="0.66"
+            data-ink-delay="990"
+            x="240"
+            y="226"
+          >
+            03
+          </text>
+          <text
+            class="note"
+            data-ink-drop
+            data-ink-start="0.72"
+            data-ink-delay="1080"
+            x="404"
+            y="138"
+          >
+            04 / END
+          </text>
+          <text
+            class="note"
+            data-ink-drop
+            data-ink-start="0.76"
+            data-ink-delay="1140"
+            x="200"
+            y="96"
+          >
+            02 · ALT
+          </text>
+          <text
+            class="note"
+            data-ink-drop
+            data-ink-start="0.8"
+            data-ink-delay="1200"
+            x="370"
+            y="332"
+          >
+            N
+          </text>
+          <circle
+            class="sketch-clay"
+            data-ink-drop
+            data-ink-start="0.58"
+            data-ink-delay="870"
+            cx="226"
+            cy="240"
+            r="3.4"
+          />
+          <circle
+            class="sketch-clay"
+            data-ink-drop
+            data-ink-start="0.7"
+            data-ink-delay="1050"
+            cx="452"
+            cy="102"
+            r="3"
+          />
+          <circle
+            class="sketch-clay"
+            data-ink-drop
+            data-ink-start="0.52"
+            data-ink-delay="780"
+            cx="72"
+            cy="316"
+            r="2.6"
+          />
+          <circle
+            class="sketch-dot"
+            data-ink-drop
+            data-ink-start="0.66"
+            data-ink-delay="990"
+            cx="338"
+            cy="166"
+            r="2.2"
+          />
+          <circle
+            class="sketch-dot"
+            data-ink-drop
+            data-ink-start="0.82"
+            data-ink-delay="1230"
+            cx="196"
+            cy="104"
+            r="2"
+          />
+        </g>
+      </svg>
+    </template>
+    <template id="artTpl-glyphs">
+      <svg
+        class="ink ink-art art--glyphs"
+        viewBox="0 0 440 140"
+        data-ink
+        role="img"
+        aria-label="Three hand-drawn chapter glyphs: storyboard, hourglass, Q and A"
+      >
+        <defs>
+          <filter id="wobble-glyphs" x="-4%" y="-4%" width="108%" height="108%">
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.028"
+              numOctaves="2"
+              seed="7"
+              result="noise"
+            />
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="noise"
+              scale="1.8"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </defs>
+        <g filter="url(#wobble-glyphs)">
+          <path
+            class="ghost"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="0"
+            pathLength="1"
+            d="M148 22 C146 60 150 90 148 118"
+          />
+          <path
+            class="ghost"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="24"
+            pathLength="1"
+            d="M292 22 C290 60 294 90 292 118"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="48"
+            pathLength="1"
+            d="M24 30 C58 27 92 29 118 31 C122 31 124 34 124 38 L123 100 C123 104 120 106 116 106 L28 104 C24 104 21 101 21 97 L22 35 C22 31 22 30 24 30"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="190"
+            pathLength="1"
+            d="M72 30 C70 55 74 80 72 105"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="214"
+            pathLength="1"
+            d="M22 68 C54 65 92 67 123 66"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="238"
+            pathLength="1"
+            d="M32 44 C44 42 56 44 64 43"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="262"
+            pathLength="1"
+            d="M32 54 C40 52 50 54 58 53"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="286"
+            pathLength="1"
+            d="M82 84 C92 78 100 76 110 78"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="310"
+            pathLength="1"
+            d="M82 94 C90 90 100 90 110 91"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="334"
+            pathLength="1"
+            d="M84 42 C96 38 108 40 114 44"
+          />
+          <circle
+            class="sketch-clay"
+            data-ink-drop
+            data-ink-start="0.56"
+            data-ink-delay="840"
+            cx="108"
+            cy="40"
+            r="3.2"
+          />
+          <text
+            class="note"
+            data-ink-drop
+            data-ink-start="0.72"
+            data-ink-delay="1080"
+            x="24"
+            y="122"
+          >
+            GLYPH / 01
+          </text>
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="72"
+            pathLength="1"
+            d="M172 30 C196 27 228 29 252 31"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="358"
+            pathLength="1"
+            d="M176 34 C186 48 196 58 210 64"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="382"
+            pathLength="1"
+            d="M248 34 C238 48 228 58 214 64"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="406"
+            pathLength="1"
+            d="M214 64 C228 72 238 82 248 98"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="430"
+            pathLength="1"
+            d="M210 64 C196 72 186 82 176 98"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="0"
+            data-ink-delay="96"
+            pathLength="1"
+            d="M172 102 C196 99 228 101 252 102"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="454"
+            pathLength="1"
+            d="M180 40 C196 44 228 44 244 40"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="478"
+            pathLength="1"
+            d="M180 92 C196 88 228 88 244 92"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="502"
+            pathLength="1"
+            d="M212 66 C210 74 212 82 212 90"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="526"
+            pathLength="1"
+            d="M204 88 C208 84 214 84 218 87"
+          />
+          <path
+            class="fine"
+            data-ink-draw
+            data-ink-stage="1"
+            data-ink-delay="550"
+            pathLength="1"
+            d="M198 96 C204 92 218 92 224 96"
+          />
+          <circle
+            class="sketch-clay"
+            data-ink-drop
+            data-ink-start="0.62"
+            data-ink-delay="930"
+            cx="212"
+            cy="76"
+            r="2.8"
+          />
+          <circle
+            class="sketch-clay"
+            data-ink-drop
+            data-ink-start="0.78"
+            data-ink-delay="1170"
+            cx="206"
+            cy="94"
+            r="1.8"
+          />
+          <text
+            class="note"
+            data-ink-drop
+            data-ink-start="0.76"
+            data-ink-delay="1140"
+            x="174"
+            y="122"
+          >
+            GLYPH / 02
+          </text>
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="380"
+            pathLength="1"
+            d="M366 46 C380 40 398 44 407 55 C417 67 413 83 402 89 C394 94 384 93 376 89"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="404"
+            pathLength="1"
+            d="M390 58 C390 66 390 71 390 75"
+          />
+          <circle
+            class="sketch-clay"
+            data-ink-drop
+            data-ink-start="0.76"
+            data-ink-delay="1140"
+            cx="390"
+            cy="82"
+            r="2.2"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="428"
+            pathLength="1"
+            d="M404 88 C410 92 413 96 411 100"
+          />
+          <path
+            class="paper-mask"
+            d="M326 74 C326 64 334 58 348 58 C362 58 371 64 371 75 C371 86 363 93 349 93 C343 93 338 91 334 89 L328 99 L329 88 C327 84 326 79 326 74 Z"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="452"
+            pathLength="1"
+            d="M326 74 C326 64 334 58 348 58 C362 58 371 64 371 75 C371 86 363 93 349 93 C343 93 338 91 334 89"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="476"
+            pathLength="1"
+            d="M334 89 L328 99 L329 88"
+          />
+          <path
+            class="contour"
+            data-ink-draw
+            data-ink-stage="2"
+            data-ink-delay="500"
+            pathLength="1"
+            d="M344 68 C344 64 351 62 355 64 C358 65 357 70 353 72 L351 77"
+          />
+          <circle
+            class="sketch-clay"
+            data-ink-drop
+            data-ink-start="0.7"
+            data-ink-delay="1050"
+            cx="351"
+            cy="83"
+            r="2.4"
+          />
+          <text
+            class="note"
+            data-ink-drop
+            data-ink-start="0.8"
+            data-ink-delay="1200"
+            x="326"
+            y="122"
+          >
+            GLYPH / 03
+          </text>
         </g>
       </svg>
     </template>
